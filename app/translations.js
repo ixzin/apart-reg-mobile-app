@@ -34,6 +34,46 @@ const Translations = {
   bookings : {
     eng: 'Bookings',
     ru: 'Все бронирования'
+  },
+  apartment: {
+    eng: 'Apartment',
+    ru: 'Апартаменты'
+  },
+  street: {
+    eng: 'Street',
+    ru: 'Улица'
+  },
+  building: {
+    eng: 'Building',
+    ru:'Дом'
+  },
+  flat: {
+    eng:'Flat',
+    ru:'Квартира'
+  },
+  floor: {
+    eng:'Floor',
+    ru:'Этаж'
+  },
+  generalArea: {
+    eng:'General area',
+    ru:'Общая площадь'
+  },
+  lifeArea: {
+    eng:' Useful area',
+    ru:'Жилая площадь'
+  },
+  kitchenArea: {
+    eng:'Kitchen area',
+    ru:'Кухня'
+  },
+  rooms: {
+    eng:' Rooms',
+    ru: 'Комнат'
+  },
+  save: {
+    eng:'Save',
+    ru:' Сохранить'
   }
 };
 

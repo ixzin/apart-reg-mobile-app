@@ -82,20 +82,15 @@ const mainStyles = StyleSheet.create({
     flexDirection:'column',
     alignItems:'flex-start',
   },
-  row:{
-    flex:1,
-    flexDirection:'row',
-    maxHeight:40
-  },
   inputBordered:{
     borderWidth: 1,
     borderColor: "black",
     color:'black',
-    maxHeight:40,
-    minWidth:150,
-    marginTop:-10
+    maxHeight:30,
+		minWidth:50
   },
   label:{
+		marginTop:0,
     width:100
   },
  });
