@@ -14,9 +14,6 @@ class MainComponent extends Component {
     super(props);
   }
 
-  ComponentDidMount = ()=>{
-    const language = Config.Constants.language;
-  };
 
   logout() {
     Storage.removeItem('access_token').then(()=>{
@@ -32,7 +29,7 @@ class MainComponent extends Component {
           <TouchableHighlight style={mainStyles.menuButton}>
             <Text style={{color: 'white', textAlign: 'center'}}>{Translations.addBooking[Config.Constants.language]}</Text>
           </TouchableHighlight>
-          <TouchableHighlight style={mainStyles.menuButton}>
+          <TouchableHighlight onPress={()=> Actions.apartment()} style={mainStyles.menuButton}>
             <Text style={{color: 'white', textAlign: 'center'}}>{Translations.addApartment[Config.Constants.language]}</Text>
           </TouchableHighlight>
           <TouchableHighlight style={mainStyles.menuButton}>

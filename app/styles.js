@@ -75,7 +75,29 @@ const mainStyles = StyleSheet.create({
 	  	backgroundColor: '#ea2e49',
 	  	padding:10,
 	  	zIndex:9
-	  }
+	  },
+	contentWrapper:{
+    flex:1,
+    paddingTop:60,
+    flexDirection:'column',
+    alignItems:'flex-start',
+  },
+  row:{
+    flex:1,
+    flexDirection:'row',
+    maxHeight:40
+  },
+  inputBordered:{
+    borderWidth: 1,
+    borderColor: "black",
+    color:'black',
+    maxHeight:40,
+    minWidth:150,
+    marginTop:-10
+  },
+  label:{
+    width:100
+  },
  });
 
 export default mainStyles;

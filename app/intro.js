@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Storage from './storage';
+import { Actions } from 'react-native-router-flux';
 import { View } from 'react-native';
 
 
