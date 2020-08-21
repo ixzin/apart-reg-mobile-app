@@ -68,7 +68,7 @@ class LoginComponent extends Component {
               secureTextEntry={true}
               onChangeText={(password) => this.setState({password})}
             />
-            <TouchableHighlight onPress={() => this.goLogin()} style={mainStyles.Button}>
+            <TouchableHighlight onPress={() => this.goLogin()} style={mainStyles.primaryButton}>
               <Text style={{color: 'white', textAlign: 'center'}}>{Translations.login[Config.Constants.language]}</Text>
             </TouchableHighlight>
           </View>

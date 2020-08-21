@@ -39,6 +39,10 @@ const Translations = {
     eng: 'Apartment',
     ru: 'Апартаменты'
   },
+  address:{
+    eng:'Address',
+    ru:'Адрес'
+  },
   street: {
     eng: 'Street',
     ru: 'Улица'
@@ -55,16 +59,20 @@ const Translations = {
     eng:'Floor',
     ru:'Этаж'
   },
+  area: {
+    eng:'Аrea',
+    ru:' Площадь'
+  },
   generalArea: {
-    eng:'General area',
-    ru:'Общая площадь'
+    eng:'General',
+    ru:'Общая'
   },
   lifeArea: {
-    eng:' Useful area',
-    ru:'Жилая площадь'
+    eng:' Useful',
+    ru:'Жилая'
   },
   kitchenArea: {
-    eng:'Kitchen area',
+    eng:'Kitchen',
     ru:'Кухня'
   },
   rooms: {
@@ -74,6 +82,14 @@ const Translations = {
   save: {
     eng:'Save',
     ru:' Сохранить'
+  },
+  reset: {
+    eng: 'Reset',
+    ru:'Сбросить'
+  },
+  return: {
+    eng: 'Return',
+    ru: 'Назад'
   }
 };
 
