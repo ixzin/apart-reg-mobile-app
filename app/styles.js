@@ -104,6 +104,18 @@ const mainStyles = StyleSheet.create({
     paddingLeft: 5,
     marginRight: 10
   },
+  inputBorderedError: {
+    borderWidth: 1,
+    borderColor: 'red',
+    color: 'red',
+    maxHeight: 30,
+    minWidth: 50,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingRight: 5,
+    paddingLeft: 5,
+    marginRight: 10
+  },
   label: {
     marginTop: 0,
     width: 100

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import {
   View,
-  Text, StyleSheet, TextInput, ScrollView, TouchableHighlight,
+  Text, StyleSheet, TextInput, ScrollView, TouchableHighlight, Alert,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import Storage from './storage';
+import Validator from './validator';
 import Config from './config';
 import Translations from './translations';
 import mainStyles from './styles';
@@ -14,39 +15,70 @@ class ApartmentComponent extends Component {
     super(props);
 
     this.state = {
-      apartment: {}
+      apartment: {},
+      errorFields: []
     };
   }
 
-  setApartmentProperty(key, value) {
-    this.state.apartment[key] = value;
+  validate = (key)=>{
+    console.log(key);
+      if (!this.isError(key) && !Validator.validate(key,this.state.apartment[key],'apartment')) {
+          this.setState({
+            errorFields: [...this.state.errorFields,key]
+          })
+      } else if (this.isError(key) && Validator.validate(key,this.state.apartment[key],'apartment')) {
+        this.setState({
+          errorFields : this.state.errorFields.filter(item => item !== key)
+        })
+      }
   };
 
-  save = ()=> {
-    Storage.getItem('access_token').then(result=> {
-      console.log(this.state.apartment);
-      if (result) {
-        fetch(Config.Data.apiConfig.apartments, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer '+result
-          },
-          method: 'POST',
-          body: JSON.stringify(this.state.apartment)
-        })
-          .then((response) => response.json())
-          .then((responseJson) => {
-            console.log(responseJson);
-          }).catch((error) => {
-          console.error(error);
-        });
-      }
+
+  isError = (key)=>{
+    return this.state.errorFields.includes(key);
+  };
+
+  setApartmentProperty = (key, value)=> {
+    this.setState({
+      apartment: { ...this.state.apartment, [key]: value }
     });
   };
 
+  save = ()=> {
+    this.validateAll();
+    if (this.state.errorFields.length === 0) {
+      Storage.getItem('access_token').then(result => {
+        if (result) {
+          fetch(Config.Data.apiConfig.apartments, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + result
+            },
+            method: 'POST',
+            body: JSON.stringify(this.state.apartment)
+          })
+            .then((response) => response.json())
+            .then((responseJson) => {
+              console.log(responseJson);
+            }).catch((error) => {
+            console.error(error);
+          });
+        }
+      });
+    } else {
+      console.error('Error');
+    }
+  };
+
+  validateAll = ()=>{
+    for (let key in Validator.validationRules.apartment) {
+      this.validate(key);
+    };
+  };
+
   reset = ()=>{
-    this.setState({apartment:{}})
+    this.setState({apartment:{}});
   };
 
   return = ()=>{
@@ -67,38 +99,43 @@ class ApartmentComponent extends Component {
             <View style={styles.row}>
               <Text style={styles.label}>{Translations.street[Config.Constants.language]}</Text>
               <TextInput
-                style={styles.inputBorderedLong}
+                style={this.isError('street') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                 onChangeText={(street) => this.setApartmentProperty('street', street)}
-                value={this.state.street}/>
+                onBlur={() => this.validate('street')}
+                value={this.state.apartment.street}/>
             </View>
             <View style={styles.row}>
               <View>
                 <Text style={styles.label}>{Translations.building[Config.Constants.language]}</Text>
                 <TextInput
-                  style={mainStyles.inputBordered}
+                  style={this.isError('building') ? mainStyles.inputBorderedError: mainStyles.inputBordered}
                   onChangeText={(building) => this.setApartmentProperty('building', building)}
-                  value={this.state.building}/>
+                  onBlur={() => this.validate('building')}
+                  value={this.state.apartment.building}/>
               </View>
               <View>
                 <Text style={styles.label}>{Translations.flat[Config.Constants.language]}</Text>
                 <TextInput
-                  style={mainStyles.inputBordered}
+                  style={this.isError('flat') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(flat) => this.setApartmentProperty('flat', flat)}
-                  value={this.state.flat}/>
+                  onBlur={() => this.validate('flat')}
+                  value={this.state.apartment.flat}/>
               </View>
               <View>
                 <Text style={styles.label}>{Translations.floor[Config.Constants.language]}</Text>
                 <TextInput
-                  style={mainStyles.inputBordered}
+                  style={this.isError('floor') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(floor) => this.setApartmentProperty('floor', floor)}
-                  value={this.state.floor}/>
+                  onBlur={() => this.validate('floor')}
+                  value={this.state.apartment.floor}/>
               </View>
               <View>
                 <Text style={styles.label}>{Translations.rooms[Config.Constants.language]}</Text>
                 <TextInput
+                  style={this.isError('rooms') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(rooms) => this.setApartmentProperty('rooms', rooms)}
-                  style={mainStyles.inputBordered}
-                  value={this.state.rooms}/>
+                  onBlur={() => this.validate('rooms')}
+                  value={this.state.apartment.rooms}/>
               </View>
             </View>
             <View style={styles.row}>
@@ -108,23 +145,26 @@ class ApartmentComponent extends Component {
               <View>
                 <Text style={styles.label}>{Translations.generalArea[Config.Constants.language]}</Text>
                 <TextInput
-                  style={mainStyles.inputBordered}
+                  style={this.isError('generalArea') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(generalArea) => this.setApartmentProperty('generalArea', generalArea)}
-                  value={this.state.generalArea}/>
+                  onBlur={() => this.validate('generalArea')}
+                  value={this.state.apartment.generalArea}/>
               </View>
               <View>
                 <Text style={styles.label}>{Translations.lifeArea[Config.Constants.language]}</Text>
                 <TextInput
-                  style={mainStyles.inputBordered}
+                  style={this.isError('lifeArea') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(lifeArea) => this.setApartmentProperty('lifeArea', lifeArea)}
-                  value={this.state.lifeArea}/>
+                  onBlur={() => this.validate('lifeArea')}
+                  value={this.state.apartment.lifeArea}/>
               </View>
               <View>
                 <Text style={styles.label}>{Translations.kitchenArea[Config.Constants.language]}</Text>
                 <TextInput
-                  style={mainStyles.inputBordered}
+                  style={this.isError('kitchenArea') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(kitchenArea) => this.setApartmentProperty('kitchenArea', kitchenArea)}
-                  value={this.state.kitchenArea}/>
+                  onBlur={() => this.validate('kitchenArea')}
+                  value={this.state.apartment.kitchenArea}/>
               </View>
             </View>
             <View style={styles.row}>
@@ -154,6 +194,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
     color: 'black',
+    maxHeight: 30,
+    minWidth: 200,
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingRight: 5,
+    paddingLeft: 5
+  },
+  inputBorderedLongError:{
+    borderWidth: 1,
+    borderColor: 'red',
+    color: 'red',
     maxHeight: 30,
     minWidth: 200,
     paddingTop: 2,
