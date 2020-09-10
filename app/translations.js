@@ -3,35 +3,35 @@ const Translations = {
     eng: 'ApartApp',
     ru: 'ApartApp'
   },
-  login : {
+  login: {
     eng: 'login',
     ru: 'войти'
   },
-  typeLogin : {
+  typeLogin: {
     eng: 'type login',
     ru: 'введите имя пользователя'
   },
-  typePass : {
+  typePass: {
     eng: 'type password',
     ru: 'введите пароль'
   },
-  logout : {
+  logout: {
     eng: 'logout',
     ru: 'Выйти'
   },
-  password : {
+  password: {
     eng: 'password',
     ru: 'пароль'
   },
-  addBooking : {
+  addBooking: {
     eng: 'Add booking',
     ru: 'Новое бронирование'
   },
-  addApartment : {
+  addApartment: {
     eng: 'Add apartment',
     ru: 'Новые апартаменты'
   },
-  bookings : {
+  bookings: {
     eng: 'Bookings',
     ru: 'Все бронирования'
   },
@@ -39,9 +39,9 @@ const Translations = {
     eng: 'Apartment',
     ru: 'Апартаменты'
   },
-  address:{
-    eng:'Address',
-    ru:'Адрес'
+  address: {
+    eng: 'Address',
+    ru: 'Адрес'
   },
   street: {
     eng: 'Street',
@@ -49,47 +49,77 @@ const Translations = {
   },
   building: {
     eng: 'Building',
-    ru:'Дом'
+    ru: 'Дом'
   },
   flat: {
-    eng:'Flat',
-    ru:'Квартира'
+    eng: 'Flat',
+    ru: 'Квартира'
   },
   floor: {
-    eng:'Floor',
-    ru:'Этаж'
+    eng: 'Floor',
+    ru: 'Этаж'
   },
   area: {
-    eng:'Аrea',
-    ru:' Площадь'
+    eng: 'Аrea',
+    ru: ' Площадь'
   },
   generalArea: {
-    eng:'General',
-    ru:'Общая'
+    eng: 'General',
+    ru: 'Общая'
   },
   lifeArea: {
-    eng:' Useful',
-    ru:'Жилая'
+    eng: ' Useful',
+    ru: 'Жилая'
   },
   kitchenArea: {
-    eng:'Kitchen',
-    ru:'Кухня'
+    eng: 'Kitchen',
+    ru: 'Кухня'
   },
   rooms: {
-    eng:' Rooms',
+    eng: ' Rooms',
     ru: 'Комнат'
   },
   save: {
-    eng:'Save',
-    ru:' Сохранить'
+    eng: 'Save',
+    ru: ' Сохранить'
   },
   reset: {
     eng: 'Reset',
-    ru:'Сбросить'
+    ru: 'Сбросить'
   },
   return: {
     eng: 'Return',
     ru: 'Назад'
+  },
+  newBooking: {
+    eng: 'New booking',
+    ru: 'Заселение'
+  },
+  chooseApartment: {
+    eng: 'Choose apartment',
+    ru: 'Выберите аппартаменты'
+  },
+  client: {
+    eng: ' Client',
+    ru: 'Клиент'
+  },
+  firstName: {
+    eng: 'First Name',
+    ru: 'Имя',
+  },
+  secondName: {
+    eng: 'Second Name',
+    ru: 'Фамилия'
+
+  },
+  phone: {
+    eng: 'Phone',
+    ru: 'Телефон'
+
+  },
+  passport: {
+    eng: 'Passport',
+    ru: 'Пасспорт'
   }
 };
 

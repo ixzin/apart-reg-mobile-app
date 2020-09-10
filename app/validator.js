@@ -23,5 +23,7 @@ export default class Validator {
       lifeArea: 'number',
       kitchenArea: 'number'
     }
-  }
+  };
+
+  static errorFields = [];
 }

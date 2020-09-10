@@ -26,7 +26,7 @@ class MainComponent extends Component {
     return (
       <View style={mainStyles.container}>
         <View>
-          <TouchableHighlight style={mainStyles.menuButton}>
+          <TouchableHighlight  onPress={() => Actions.booking()} style={mainStyles.menuButton}>
             <Text
               style={{color: 'white', textAlign: 'center'}}>{Translations.addBooking[Config.Constants.language]}</Text>
           </TouchableHighlight>

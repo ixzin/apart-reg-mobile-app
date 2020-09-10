@@ -20,33 +20,28 @@ class ApartmentComponent extends Component {
     };
   }
 
-  validate = (key)=>{
-    console.log(key);
-      if (!this.isError(key) && !Validator.validate(key,this.state.apartment[key],'apartment')) {
-          this.setState({
-            errorFields: [...this.state.errorFields,key]
-          })
-      } else if (this.isError(key) && Validator.validate(key,this.state.apartment[key],'apartment')) {
-        this.setState({
-          errorFields : this.state.errorFields.filter(item => item !== key)
-        })
-      }
+  validate = (key) => {
+    if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state.apartment[key], 'apartment')) {
+      Validator.errorFields = [...Validator.errorFields, key];
+    } else if (this.isError(key) && Validator.validate(key, this.state.apartment[key], 'apartment')) {
+      Validator.errorFields = Validator.errorFields.filter(item => item !== key)
+    }
   };
 
 
-  isError = (key)=>{
+  isError = (key) => {
     return this.state.errorFields.includes(key);
   };
 
-  setApartmentProperty = (key, value)=> {
+  setApartmentProperty = (key, value) => {
     this.setState({
-      apartment: { ...this.state.apartment, [key]: value }
+      apartment: {...this.state.apartment, [key]: value}
     });
   };
 
-  save = ()=> {
+  save = () => {
     this.validateAll();
-    if (this.state.errorFields.length === 0) {
+    if (Validator.errorFields.length) {
       Storage.getItem('access_token').then(result => {
         if (result) {
           fetch(Config.Data.apiConfig.apartments, {
@@ -67,24 +62,25 @@ class ApartmentComponent extends Component {
         }
       });
     } else {
-      console.error('Error');
+      console.error('Fill all fields');
     }
   };
 
-  validateAll = ()=>{
+  validateAll = () => {
+    Validator.errorFields = [];
     for (let key in Validator.validationRules.apartment) {
       this.validate(key);
     };
+    this.setState({errorFields: Validator.errorFields});
   };
 
-  reset = ()=>{
-    this.setState({apartment:{}});
+  reset = () => {
+    this.setState({booking: {}});
   };
 
-  return = ()=>{
+  return = () => {
     Actions.main();
   };
-
 
 
   render() {
@@ -108,7 +104,7 @@ class ApartmentComponent extends Component {
               <View>
                 <Text style={styles.label}>{Translations.building[Config.Constants.language]}</Text>
                 <TextInput
-                  style={this.isError('building') ? mainStyles.inputBorderedError: mainStyles.inputBordered}
+                  style={this.isError('building') ? mainStyles.inputBorderedError : mainStyles.inputBordered}
                   onChangeText={(building) => this.setApartmentProperty('building', building)}
                   onBlur={() => this.validate('building')}
                   value={this.state.apartment.building}/>
@@ -201,7 +197,7 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     paddingLeft: 5
   },
-  inputBorderedLongError:{
+  inputBorderedLongError: {
     borderWidth: 1,
     borderColor: 'red',
     color: 'red',

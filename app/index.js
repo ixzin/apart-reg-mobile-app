@@ -4,6 +4,7 @@ import MainComponent from './main';
 import IntroComponent from './intro';
 import ApartmentComponent from './apartment';
 import { Router, Scene, Stack } from 'react-native-router-flux';
+import BookingComponent from './booking';
 
 
 class App extends Component {
@@ -19,6 +20,7 @@ class App extends Component {
           <Scene key="intro" component={IntroComponent} initial={true}/>
           <Scene key="login" component={LoginComponent}/>
           <Scene key="main" component={MainComponent}/>
+          <Scene key="booking" component={BookingComponent}/>
           <Scene key="apartment" component={ApartmentComponent}/>
         </Stack>
       </Router>
