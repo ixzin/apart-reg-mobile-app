@@ -120,6 +120,11 @@ const mainStyles = StyleSheet.create({
     marginTop: 0,
     width: 100
   },
+  picker: {
+    borderWidth: 1,
+    borderColor: 'black',
+    flex:1
+  }
 });
 
 export default mainStyles;

@@ -103,6 +103,10 @@ const Translations = {
     eng: ' Client',
     ru: 'Клиент'
   },
+  oldCLient: {
+    eng: 'Old client',
+    ru: 'Уже селился'
+  },
   firstName: {
     eng: 'First Name',
     ru: 'Имя',
@@ -112,14 +116,18 @@ const Translations = {
     ru: 'Фамилия'
 
   },
-  phone: {
-    eng: 'Phone',
+  phone1: {
+    eng: 'Phone1',
     ru: 'Телефон'
 
   },
-  passport: {
-    eng: 'Passport',
-    ru: 'Пасспорт'
+  phone2: {
+    eng: 'Phone2',
+    ru: 'Телефон 2'
+  },
+  register: {
+    eng:' Register',
+    ru:'Прописка '
   }
 };
 
