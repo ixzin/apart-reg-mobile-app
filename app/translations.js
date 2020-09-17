@@ -128,6 +128,14 @@ const Translations = {
   register: {
     eng:' Register',
     ru:'Прописка '
+  },
+  chooseStartDate: {
+    eng:' Choose start date',
+    ru:' Выбрать дату заселения'
+  },
+  chooseEndDate: {
+    eng:' Choose end date',
+    ru:' Выбрать дату выселения'
   }
 };
 

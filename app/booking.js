@@ -4,6 +4,8 @@ import {
   Text, StyleSheet, TextInput, ScrollView, TouchableHighlight, Picker, Switch,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import Storage from './storage';
 import Validator from './validator';
 import Config from './config';
@@ -16,17 +18,30 @@ class BookingComponent extends Component {
     super(props);
 
     this.state = {
-      booking: {},
+      booking: {
+        startDate: new Date(),
+        endTime: new Date()
+      },
       client: {},
       errorFields: [],
       apartments: [],
-      isOldClient: false
+      isOldClient: false,
+      showStartDatePiker: false,
+      showEndDatePiker: false
     };
   }
 
   componentDidMount() {
     this.getApatments();
   }
+
+  onStartDateChange = (event, selectedDate) => {
+    this.setState({showStartDatePiker: false});
+    const currentDate = selectedDate || new Date();
+    this.setBookingProperty('startDate', currentDate);
+    ;
+    console.log(this.state.booking);
+  };
 
   getApatments = () => {
     Storage.getItem('access_token').then(result => {
@@ -44,7 +59,7 @@ class BookingComponent extends Component {
             if (Array.isArray(responseJson)) {
               this.setState({apartments: responseJson});
               this.setState({
-                booking: {...this.state.booking, apartmentId: responseJson._id}
+                booking: {...this.state.booking, apartmentId: responseJson[0]._id}
               });
             }
           }).catch((error) => {
@@ -206,6 +221,21 @@ class BookingComponent extends Component {
                 </View>
               </View>
               )}
+              <View style={styles.row}>
+                <TouchableHighlight onPress={() => this.setState({showStartDatePiker:true})} style={mainStyles.secondaryButton}>
+                  <Text
+                    style={{color: 'white', textAlign: 'center'}}>{Translations.chooseStartDate[Config.Constants.language]}</Text>
+                </TouchableHighlight>
+              </View>
+            {this.state.showStartDatePiker && (
+            <DateTimePicker
+              testID="dateTimePickerStart"
+              value={this.state.booking.startDate}
+              mode="date"
+              is24Hour={true}
+              display="default"
+              onChange={this.onStartDateChange}
+            />)}
             <View style={styles.row}>
               <TouchableHighlight onPress={() => this.save()} style={mainStyles.primaryButton}>
                 <Text
