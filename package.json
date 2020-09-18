@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.12.0",
-    "@react-native-community/datetimepicker": "^3.0.2",
     "react": "16.13.1",
     "react-native": "0.63.2",
+    "react-native-calendars": "^1.403.0",
     "react-native-gesture-handler": "^1.7.0",
     "react-native-reanimated": "^1.10.1",
     "react-native-router-flux": "^4.2.0",

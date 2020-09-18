@@ -111,7 +111,7 @@ const Translations = {
     eng: 'First Name',
     ru: 'Имя',
   },
-  secondName: {
+  lastName: {
     eng: 'Second Name',
     ru: 'Фамилия'
 
@@ -130,12 +130,12 @@ const Translations = {
     ru:'Прописка '
   },
   chooseStartDate: {
-    eng:' Choose start date',
-    ru:' Выбрать дату заселения'
+    eng:'Start date',
+    ru:' Дата заселения'
   },
   chooseEndDate: {
-    eng:' Choose end date',
-    ru:' Выбрать дату выселения'
+    eng:'End date',
+    ru:'Дата выселения'
   }
 };
 

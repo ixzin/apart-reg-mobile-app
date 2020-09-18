@@ -1,10 +1,10 @@
 const Constants = {
-  apiUrl : 'http://10.0.3.2:3000',
-  language : 'ru'
+  apiUrl: 'http://10.0.3.2:3000',
+  language: 'ru'
 };
 
 const Data = {
-  apiConfig : {
+  apiConfig: {
     apartments: `${Constants.apiUrl}/apartments`,
     bookings: `${Constants.apiUrl}/bookings`,
     users: `${Constants.apiUrl}/users`,
@@ -12,4 +12,11 @@ const Data = {
   }
 };
 
-export default { Constants, Data };
+const newDate = new Date();
+
+const Dates = {
+  min: new Date(),
+  max: (newDate).setMonth(newDate.getMonth() + 1)
+};
+
+export default {Constants, Data, Dates};

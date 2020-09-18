@@ -4,14 +4,13 @@ import {
   Text, StyleSheet, TextInput, ScrollView, TouchableHighlight, Picker, Switch,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Calendar } from 'react-native-calendars';
 
 import Storage from './storage';
 import Validator from './validator';
 import Config from './config';
 import Translations from './translations';
 import mainStyles from './styles';
-import renderIf from './renderif';
 
 class BookingComponent extends Component {
   constructor(props) {
@@ -19,8 +18,8 @@ class BookingComponent extends Component {
 
     this.state = {
       booking: {
-        startDate: new Date(),
-        endTime: new Date()
+        startDate: null,
+        endDate: null
       },
       client: {},
       errorFields: [],
@@ -35,12 +34,18 @@ class BookingComponent extends Component {
     this.getApatments();
   }
 
-  onStartDateChange = (event, selectedDate) => {
-    this.setState({showStartDatePiker: false});
-    const currentDate = selectedDate || new Date();
-    this.setBookingProperty('startDate', currentDate);
-    ;
-    console.log(this.state.booking);
+  onStartDateChange = (selectedDate) => {
+    this.setBookingProperty('startDate', selectedDate.dateString);
+    this.setState({
+      showStartDatePiker: false
+    });
+  };
+
+  onEndDateChange = (selectedDate) => {
+    this.setBookingProperty('endDate', selectedDate.dateString);
+    this.setState({
+      showEndDatePiker: false
+    });
   };
 
   getApatments = () => {
@@ -82,11 +87,11 @@ class BookingComponent extends Component {
   };
 
   validate = (key) => {
-   /* if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state.client[key], 'client')) {
-      Validator.errorFields = [...Validator.errorFields, key];
-    } else if (this.isError(key) && Validator.validate(key, this.state.client[key], 'client')) {
-      Validator.errorFields = Validator.errorFields.filter(item => item !== key)
-    }*/
+    /* if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state.client[key], 'client')) {
+       Validator.errorFields = [...Validator.errorFields, key];
+     } else if (this.isError(key) && Validator.validate(key, this.state.client[key], 'client')) {
+       Validator.errorFields = Validator.errorFields.filter(item => item !== key)
+     }*/
   };
 
   isError = (key) => {
@@ -94,8 +99,9 @@ class BookingComponent extends Component {
   };
 
   save = () => {
-    console.log(this.state.booking, this.state.client);
     //this.validateAll();
+    const data = {...this.state.client, ...this.state.booking};
+    console.log(data);
     if (!Validator.errorFields.length) {
       Storage.getItem('access_token').then(result => {
         if (result) {
@@ -106,7 +112,7 @@ class BookingComponent extends Component {
               'Authorization': 'Bearer ' + result
             },
             method: 'POST',
-            body: JSON.stringify(this.state.booking)
+            body: JSON.stringify(data)
           })
             .then((response) => response.json())
             .then((responseJson) => {
@@ -141,6 +147,7 @@ class BookingComponent extends Component {
 
   render() {
     return (
+
       <View style={mainStyles.container}>
         <ScrollView>
           <View style={mainStyles.contentWrapper}>
@@ -151,7 +158,7 @@ class BookingComponent extends Component {
                 fontSize: 16
               }}>{Translations.chooseApartment[Config.Constants.language]}</Text>
             </View>
-            {renderIf(this.state.apartments.length,
+            {this.state.apartments.length > 0 && (
               <View style={styles.row}>
                 <Picker
                   selectedValue={this.state.booking.apartmentId || '...'}
@@ -177,23 +184,23 @@ class BookingComponent extends Component {
                 value={this.state.isOldClient}
               />
             </View>
-            {renderIf(!this.state.isOldClient,
+            {!this.state.isOldClient && (
               <View style={styles.column}>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{Translations.secondName[Config.Constants.language]}</Text>
+                  <Text style={styles.label}>{Translations.lastName[Config.Constants.language]}</Text>
                   <TextInput
-                    style={this.isError('secondName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(secondName) => this.setClientProperty('secondName', secondName)}
-                    onBlur={() => this.validate('secondName')}
-                    value={this.state.client.secondName}/>
+                    style={this.isError('lastName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
+                    onChangeText={(lastName) => this.setClientProperty('lastName', lastName)}
+                    onBlur={() => this.validate('lastName')}
+                    value={this.state.client.lastName}/>
                 </View>
                 <View style={styles.row}>
                   <Text style={styles.label}>{Translations.firstName[Config.Constants.language]}</Text>
                   <TextInput
-                  style={this.isError('firstName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                  onChangeText={(firstName) => this.setClientProperty('firstName', firstName)}
-                  onBlur={() => this.validate('firstName')}
-                  value={this.state.client.firstName}/>
+                    style={this.isError('firstName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
+                    onChangeText={(firstName) => this.setClientProperty('firstName', firstName)}
+                    onBlur={() => this.validate('firstName')}
+                    value={this.state.client.firstName}/>
                 </View>
                 <View style={styles.row}>
                   <Text style={styles.label}>{Translations.phone1[Config.Constants.language]}</Text>
@@ -214,28 +221,35 @@ class BookingComponent extends Component {
                 <View style={styles.row}>
                   <Text style={styles.label}>{Translations.register[Config.Constants.language]}</Text>
                   <TextInput
-                    style={this.isError('register') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(register) => this.setClientProperty('register', register)}
-                    onBlur={() => this.validate('register')}
-                    value={this.state.client.register}/>
+                    style={this.isError('registerCity') ? styles.inputBorderedLongError : styles.inputBorderedLong}
+                    onChangeText={(registerCity) => this.setClientProperty('registerCity', registerCity)}
+                    onBlur={() => this.validate('registerCity')}
+                    value={this.state.client.registerCity}/>
                 </View>
               </View>
-              )}
-              <View style={styles.row}>
-                <TouchableHighlight onPress={() => this.setState({showStartDatePiker:true})} style={mainStyles.secondaryButton}>
-                  <Text
-                    style={{color: 'white', textAlign: 'center'}}>{Translations.chooseStartDate[Config.Constants.language]}</Text>
-                </TouchableHighlight>
-              </View>
-            {this.state.showStartDatePiker && (
-            <DateTimePicker
-              testID="dateTimePickerStart"
-              value={this.state.booking.startDate}
-              mode="date"
-              is24Hour={true}
-              display="default"
-              onChange={this.onStartDateChange}
-            />)}
+            )}
+            <View style={styles.row}>
+              <TouchableHighlight onPress={() => this.setState({showStartDatePiker: true})}
+                                  style={styles.secondaryButton}>
+                <Text
+                  style={{
+                    color: 'black',
+                    textAlign: 'center'
+                  }}>{Translations.chooseStartDate[Config.Constants.language]}</Text>
+              </TouchableHighlight>
+              <Text style={{height:40, paddingTop:10}}>{this.state.booking.startDate}</Text>
+            </View>
+            <View style={styles.row}>
+              <TouchableHighlight onPress={() => this.setState({showEndDatePiker: true})}
+                                  style={styles.secondaryButton}>
+                <Text
+                  style={{
+                    color: 'black',
+                    textAlign: 'center'
+                  }}>{Translations.chooseEndDate[Config.Constants.language]}</Text>
+              </TouchableHighlight>
+              <Text style={{height:40, paddingTop:10}}>{this.state.booking.endDate}</Text>
+            </View>
             <View style={styles.row}>
               <TouchableHighlight onPress={() => this.save()} style={mainStyles.primaryButton}>
                 <Text
@@ -252,6 +266,37 @@ class BookingComponent extends Component {
             </View>
           </View>
         </ScrollView>
+        {(this.state.showEndDatePiker || this.state.showStartDatePiker) && (
+            <View style={mainStyles.Mask}></View>
+          )}
+        {this.state.showStartDatePiker && (
+          <View style={styles.calendar}>
+            <Calendar
+              minDate={Config.Dates.min}
+              maxDate={Config.Dates.max}
+              onDayPress={(day) => {
+                this.onStartDateChange(day)
+              }}
+              monthFormat={'yyyy MM'}
+              disableMonthChange={true}
+              firstDay={1}
+              disableAllTouchEventsForDisabledDays={true}
+              enableSwipeMonths={true}
+            /></View>)}
+        {this.state.showEndDatePiker && (
+          <View style={styles.calendar}>
+            <Calendar
+              minDate={Config.Dates.min}
+              maxDate={Config.Dates.max}
+              onDayPress={(day) => {
+                this.onEndDateChange(day)
+              }}
+              monthFormat={'yyyy MM'}
+              disableMonthChange={true}
+              firstDay={1}
+              disableAllTouchEventsForDisabledDays={true}
+              enableSwipeMonths={true}
+            /></View>)}
       </View>
     );
   }
@@ -283,7 +328,7 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 0,
-    minWidth:100,
+    minWidth: 100,
     marginRight: 10
   },
   row: {
@@ -295,7 +340,27 @@ const styles = StyleSheet.create({
   column: {
     flex: 1,
     flexDirection: 'column'
-  }
+  },
+  calendarPiker: {
+    padding: 10,
+    zIndex: 2,
+    height: 40,
+    minWidth:100,
+    borderColor:'black',
+    borderWidth:0
+  },
+  calendar: {
+    position: 'absolute',
+    margin: 'auto',
+    zIndex:9
+  },
+  secondaryButton: {
+    backgroundColor: '#b1b1b1',
+    padding: 10,
+    zIndex: 2,
+    height: 40,
+    marginRight:10
+  },
 });
 
 
