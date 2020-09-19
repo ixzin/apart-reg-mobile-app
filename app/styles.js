@@ -124,6 +124,12 @@ const mainStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
     flex:1
+  },
+  rightSmallPicker: {
+    borderWidth: 1,
+    borderColor: 'black',
+    flex:2,
+    height:40
   }
 });
 

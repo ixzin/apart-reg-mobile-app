@@ -136,6 +136,18 @@ const Translations = {
   chooseEndDate: {
     eng:'End date',
     ru:'Дата выселения'
+  },
+  chooseStartTime: {
+    eng:'Start time',
+    ru:'Время'
+  },
+  chooseEndTime: {
+    eng: 'End time',
+    ru:'Время'
+  },
+  numberOfGuests: {
+    eng:'Number of guests',
+    ru: 'Гостей'
   }
 };
 
