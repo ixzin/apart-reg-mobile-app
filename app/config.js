@@ -20,4 +20,29 @@ const Dates = {
   max: (newDate).setMonth(newDate.getMonth() + 1)
 };
 
-export default {Constants, Data, Dates};
+const generateTimeValues = () => {
+  let timeValues = [];
+  let count = 0;
+  let hours = 0;
+  while (count < 48) {
+    let minutes = '00';
+    if (count % 2) {
+      minutes = '30';
+    }
+    let timeString = `${hours < 10 ? '0' + hours : hours}:${minutes}`;
+    timeValues.push({
+      key: timeString,
+      value: timeString
+    });
+
+    if (count % 2) {
+      hours++;
+    }
+
+    count++;
+  }
+
+  return timeValues;
+};
+
+export default {Constants, Data, Dates, generateTimeValues};

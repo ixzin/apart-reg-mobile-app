@@ -15,13 +15,13 @@ import mainStyles from './styles';
 class BookingComponent extends Component {
   constructor(props) {
     super(props);
-
+    const timeValues = Config.generateTimeValues();
     this.state = {
       booking: {
         startDate: null,
         endDate: null,
-        startTime:null,
-        endTime:null,
+        startTime:'17:00',
+        endTime:'11:00',
         numberOfGuests:1
       },
       clients:null,
@@ -30,12 +30,13 @@ class BookingComponent extends Component {
       apartments: [],
       isOldClient: false,
       showStartDatePiker: false,
-      showEndDatePiker: false
+      showEndDatePiker: false,
+      timeValues: timeValues
     };
   }
 
   componentDidMount() {
-    this.getApatments();
+    this.getApartments();
   }
 
   onStartDateChange = (selectedDate) => {
@@ -52,7 +53,7 @@ class BookingComponent extends Component {
     });
   };
 
-  getApatments = () => {
+  getApartments = () => {
     Storage.getItem('access_token').then(result => {
       if (result) {
         fetch(Config.Data.apiConfig.apartments, {
@@ -304,7 +305,7 @@ class BookingComponent extends Component {
                 selectedValue={this.state.booking.startTime}
                 style={mainStyles.rightSmallPicker}
                 onValueChange={(itemValue, itemIndex) => this.setBookingProperty('startTime', itemValue)}>
-                {[{key:'11:00',value:'11:00'},{key:'12:00',value:'12:00'}].map((item, index) => {
+                {this.state.timeValues.map((item, index) => {
                   return (<Picker.Item label={item.key} value={item.value} key={index}/>)
                 })}
               </Picker>
@@ -326,7 +327,7 @@ class BookingComponent extends Component {
                 selectedValue={this.state.booking.endTime}
                 style={mainStyles.rightSmallPicker}
                 onValueChange={(itemValue, itemIndex) => this.setBookingProperty('endTime', itemValue)}>
-                {[{key:'11:00',value:'11:00'},{key:'12:00',value:'12:00'}].map((item, index) => {
+                {this.state.timeValues.map((item, index) => {
                   return (<Picker.Item label={item.key} value={item.value} key={index}/>)
                 })}
               </Picker>
