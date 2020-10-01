@@ -41,7 +41,7 @@ class ApartmentComponent extends Component {
 
   save = () => {
     this.validateAll();
-    if (Validator.errorFields.length) {
+    if (!Validator.errorFields.length) {
       Storage.getItem('access_token').then(result => {
         if (result) {
           fetch(Config.Data.apiConfig.apartments, {
@@ -55,7 +55,7 @@ class ApartmentComponent extends Component {
           })
             .then((response) => response.json())
             .then((responseJson) => {
-              console.log(responseJson);
+              Actions.main();
             }).catch((error) => {
             console.error(error);
           });

@@ -22,6 +22,20 @@ export default class Validator {
       generalArea: 'number',
       lifeArea: 'number',
       kitchenArea: 'number'
+    },
+    booking: {
+      apartmentId:'string',
+      startDate: 'string',
+      endDate:' string',
+      startTime: 'string',
+      endTime:'string',
+      numberOfGuests:'number',
+    },
+    client: {
+      lastName:'string',
+      firstName:'string',
+      phone1:'string',
+      registerCity:'string',
     }
   };
 

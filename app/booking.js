@@ -114,6 +114,12 @@ class BookingComponent extends Component {
     });
     if (isOldClient) {
       this.getClients();
+
+      const errorFields = this.state.errorFields.filter(item=>!Validator.validationRules.client[item]);
+
+      this.setState({
+        errorFields: errorFields
+      });
     } else {
       this.setState(
         {
@@ -135,12 +141,12 @@ class BookingComponent extends Component {
     });
   };
 
-  validate = (key) => {
-    /* if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state.client[key], 'client')) {
+  validate = (key, entity) => {
+    if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state[entity][key], entity)) {
        Validator.errorFields = [...Validator.errorFields, key];
-     } else if (this.isError(key) && Validator.validate(key, this.state.client[key], 'client')) {
+     } else if (this.isError(key) && Validator.validate(key, this.state.client[key], entity)) {
        Validator.errorFields = Validator.errorFields.filter(item => item !== key)
-     }*/
+     }
   };
 
   isError = (key) => {
@@ -148,11 +154,12 @@ class BookingComponent extends Component {
   };
 
   save = () => {
-    //this.validateAll();
+    this.validateAll();
     const data = {...{client: this.state.client}, ...this.state.booking};
-    console.log(data);
+
     if (!Validator.errorFields.length) {
       Storage.getItem('access_token').then(result => {
+
         if (result) {
           fetch(Config.Data.apiConfig.bookings, {
             headers: {
@@ -163,10 +170,8 @@ class BookingComponent extends Component {
             method: 'POST',
             body: JSON.stringify(data)
           })
-            .then((response) => response.json())
-            .then((responseJson) => {
-              console.log(responseJson);
-            }).catch((error) => {
+            .then((response) => Actions.main())
+            .catch((error) => {
             console.error(error);
           });
         }
@@ -179,13 +184,22 @@ class BookingComponent extends Component {
   validateAll = () => {
     Validator.errorFields = [];
     for (let key in Validator.validationRules.booking) {
-      this.validate(key);
+      this.validate(key,'booking');
     };
+
+    if (!this.state.isOldClient) {
+      for (let key in Validator.validationRules.client) {
+        this.validate(key,'client')
+      }
+    }
     this.setState({errorFields: Validator.errorFields});
   };
 
   reset = () => {
     this.setState({booking: {}});
+    if (!this.state.isOldClient) {
+      this.setState({client:{}});
+    }
   };
 
   return = () => {
@@ -237,7 +251,7 @@ class BookingComponent extends Component {
                 <Picker
                   selectedValue={this.state.client._id || '...'}
                   style={mainStyles.picker}
-                  onValueChange={(itemValue, itemIndex) => this.setClientProperty('clientId', itemValue)}>
+                  onValueChange={(itemValue, itemIndex) => this.setClientProperty('_id', itemValue)}>
                   {this.state.clients.map((item, index) => {
                     return (<Picker.Item label={`${item.firstName} ${item.lastName}`} value={item._id} key={index}/>)
                   })}
@@ -251,7 +265,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('lastName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(lastName) => this.setClientProperty('lastName', lastName)}
-                    onBlur={() => this.validate('lastName')}
+                    onBlur={() => this.validate('lastName','client')}
                     value={this.state.client.lastName}/>
                 </View>
                 <View style={styles.row}>
@@ -259,7 +273,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('firstName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(firstName) => this.setClientProperty('firstName', firstName)}
-                    onBlur={() => this.validate('firstName')}
+                    onBlur={() => this.validate('firstName','client')}
                     value={this.state.client.firstName}/>
                 </View>
                 <View style={styles.row}>
@@ -267,7 +281,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('phone1') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(phone1) => this.setClientProperty('phone1', phone1)}
-                    onBlur={() => this.validate('phone1')}
+                    onBlur={() => this.validate('phone1','client')}
                     value={this.state.client.phone1}/>
                 </View>
                 <View style={styles.row}>
@@ -283,24 +297,24 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('registerCity') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(registerCity) => this.setClientProperty('registerCity', registerCity)}
-                    onBlur={() => this.validate('registerCity')}
+                    onBlur={() => this.validate('registerCity','client')}
                     value={this.state.client.registerCity}/>
                 </View>
               </View>
             )}
             <View style={styles.row}>
               <TouchableHighlight onPress={() => this.setState({showStartDatePiker: true})}
-                                  style={styles.secondaryButton}>
+                                  style={this.isError('startDate') ? styles.errorButton : styles.secondaryButton}>
                 <Text
                   style={{
                     color: 'black',
                     textAlign: 'center'
                   }}>{Translations.chooseStartDate[Config.Constants.language]}</Text>
               </TouchableHighlight>
-              <Text style={{height:40, paddingTop:10}}>{this.state.booking.startDate}</Text>
+              <Text style={{height:40, paddingTop:10, paddingLeft:30, fontSize:16}}>{this.state.booking.startDate}</Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.label}>{Translations.chooseStartTime[Config.Constants.language]}</Text>
+              <Text style={styles.centerLabel}>{Translations.chooseStartTime[Config.Constants.language]}</Text>
               <Picker
                 selectedValue={this.state.booking.startTime}
                 style={mainStyles.rightSmallPicker}
@@ -312,17 +326,17 @@ class BookingComponent extends Component {
             </View>
             <View style={styles.row}>
               <TouchableHighlight onPress={() => this.setState({showEndDatePiker: true})}
-                                  style={styles.secondaryButton}>
+                                  style={this.isError('endDate') ? styles.errorButton : styles.secondaryButton}>
                 <Text
                   style={{
                     color: 'black',
                     textAlign: 'center'
                   }}>{Translations.chooseEndDate[Config.Constants.language]}</Text>
               </TouchableHighlight>
-              <Text style={{height:40, paddingTop:10, minWidth:100}}>{this.state.booking.endDate}</Text>
+              <Text style={{height:40, paddingTop:10, paddingLeft:30, fontSize:16}}>{this.state.booking.endDate}</Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.label}>{Translations.chooseEndTime[Config.Constants.language]}</Text>
+              <Text style={styles.centerLabel}>{Translations.chooseEndTime[Config.Constants.language]}</Text>
               <Picker
                 selectedValue={this.state.booking.endTime}
                 style={mainStyles.rightSmallPicker}
@@ -336,9 +350,10 @@ class BookingComponent extends Component {
               <Text style={styles.label}>{Translations.numberOfGuests[Config.Constants.language]}</Text>
               <TextInput
                 style={this.isError('numberOfGuests') ?  styles.inputBorderedLongError : styles.inputBorderedLong}
-                onChangeText={(numberOfGuests) => this.setBookingProperty('numberOfGuests', numberOfGuests)}
-                onBlur={() => this.validate('numberOfGuests')}
-                value={this.state.booking.numberOfGuests}/>
+                onChangeText={(numberOfGuests) => this.setBookingProperty('numberOfGuests', +numberOfGuests.replace(/[^0-9]/g, ''))}
+                onBlur={() => this.validate('numberOfGuests','booking')}
+                keyboardType='numeric'
+                value={this.state.booking.numberOfGuests + ''}/>
             </View>
             <View style={styles.row}>
               <TouchableHighlight onPress={() => this.save()} style={mainStyles.primaryButton}>
@@ -421,6 +436,11 @@ const styles = StyleSheet.create({
     minWidth: 100,
     marginRight: 10
   },
+  centerLabel:{
+    marginTop:10,
+    minWidth:200,
+    marginRight:10
+  },
   row: {
     flex: 1,
     flexDirection: 'row',
@@ -451,6 +471,16 @@ const styles = StyleSheet.create({
     height: 40,
     marginRight:10
   },
+  errorButton: {
+    backgroundColor: '#b1b1b1',
+    borderWidth:1,
+    borderColor:'red',
+    color:'red',
+    padding: 10,
+    zIndex: 2,
+    height: 40,
+    marginRight:10
+  }
 });
 
 
