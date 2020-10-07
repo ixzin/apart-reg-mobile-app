@@ -17,7 +17,7 @@ class MainComponent extends Component {
 
 
   async logout() {
-    const loginInfo =await Authorization.getAccessToken();
+    const loginInfo = await Authorization.getAccessToken();
 
     await Authorization.logout(loginInfo.login);
   }
@@ -27,7 +27,7 @@ class MainComponent extends Component {
     return (
       <View style={mainStyles.container}>
         <View>
-          <TouchableHighlight  onPress={() => Actions.booking()} style={mainStyles.menuButton}>
+          <TouchableHighlight onPress={() => Actions.booking()} style={mainStyles.menuButton}>
             <Text
               style={{color: 'white', textAlign: 'center'}}>{Translations.addBooking[Config.Constants.language]}</Text>
           </TouchableHighlight>
@@ -37,7 +37,7 @@ class MainComponent extends Component {
               textAlign: 'center'
             }}>{Translations.addApartment[Config.Constants.language]}</Text>
           </TouchableHighlight>
-          <TouchableHighlight style={mainStyles.menuButton}>
+          <TouchableHighlight onPress={() => Actions.calendar()} style={mainStyles.menuButton}>
             <Text
               style={{color: 'white', textAlign: 'center'}}>{Translations.bookings[Config.Constants.language]}</Text>
           </TouchableHighlight>

@@ -148,6 +148,10 @@ const Translations = {
   numberOfGuests: {
     eng:'Number of guests',
     ru: 'Гостей'
+  },
+  bookingCalendar: {
+    eng:'Bookings',
+    ru: 'Календарь'
   }
 };
 
