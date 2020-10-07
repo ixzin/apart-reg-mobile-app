@@ -13,7 +13,7 @@ export default class Storage {
       try {
         const value = await AsyncStorage.getItem(key);
         if (value !== null) {
-          return value;
+          return JSON.parse(value);
         }
       } catch (error) {
         throw new  Error(error);

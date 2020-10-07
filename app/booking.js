@@ -6,11 +6,11 @@ import {
 import { Actions } from 'react-native-router-flux';
 import { Calendar } from 'react-native-calendars';
 
-import Storage from './storage';
 import Validator from './validator';
 import Config from './config';
 import Translations from './translations';
 import mainStyles from './styles';
+import Authorization from './auth';
 
 class BookingComponent extends Component {
   constructor(props) {
@@ -20,11 +20,11 @@ class BookingComponent extends Component {
       booking: {
         startDate: null,
         endDate: null,
-        startTime:'17:00',
-        endTime:'11:00',
-        numberOfGuests:1
+        startTime: '17:00',
+        endTime: '11:00',
+        numberOfGuests: 1
       },
-      clients:null,
+      clients: null,
       client: {},
       errorFields: [],
       apartments: [],
@@ -53,79 +53,74 @@ class BookingComponent extends Component {
     });
   };
 
-  getApartments = () => {
-    Storage.getItem('access_token').then(result => {
-      if (result) {
-        fetch(Config.Data.apiConfig.apartments, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + result
-          },
-          method: 'GET',
-        })
-          .then((response) => response.json())
-          .then((responseJson) => {
-            if (Array.isArray(responseJson)) {
-              this.setState({apartments: responseJson});
-              this.setState({
-                booking: {...this.state.booking, apartmentId: responseJson[0]._id}
-              });
-            }
-          }).catch((error) => {
-          console.error(error);
-        });
-      }
+  getApartments = async () => {
+    const token = await Authorization.getAccessToken();
+
+    fetch(Config.Data.apiConfig.apartments, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        if (Array.isArray(responseJson)) {
+          this.setState({apartments: responseJson});
+          this.setState({
+            booking: {...this.state.booking, apartmentId: responseJson[0]._id}
+          });
+        }
+      }).catch((error) => {
+      console.error(error);
     });
   };
 
-  getClients = () =>{
-    Storage.getItem('access_token').then(result => {
-      if (result) {
-        fetch(Config.Data.apiConfig.clients, {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + result
-          },
-          method: 'GET',
-        })
-          .then((response) => response.json())
-          .then((responseJson) => {
-            if (Array.isArray(responseJson)) {
-              this.setState({clients: responseJson});
-              if (responseJson &&  responseJson.length) {
-                const firstClient = responseJson[0];
-                this.setState({
-                  client: {clientId: firstClient._id, firstName: firstClient.firstName, lastName: firstClient.lastName}
-                });
-              }
-            }
-          }).catch((error) => {
-          console.error(error);
-        });
-      }
+  getClients = async () => {
+    const token = await Authorization.getAccessToken();
+
+    fetch(Config.Data.apiConfig.clients, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+
+        if (Array.isArray(responseJson)) {
+          this.setState({clients: responseJson});
+          if (responseJson && responseJson.length) {
+            const firstClient = responseJson[0];
+            this.setState({
+              client: {clientId: firstClient._id, firstName: firstClient.firstName, lastName: firstClient.lastName}
+            });
+          }
+        }
+      }).catch((error) => {
+      console.error(error);
     });
   };
 
-  changeClientMode = (isOldClient)=> {
+  changeClientMode = async (isOldClient) => {
     this.setState({
       isOldClient: isOldClient
     });
     if (isOldClient) {
-      this.getClients();
+      await this.getClients();
 
-      const errorFields = this.state.errorFields.filter(item=>!Validator.validationRules.client[item]);
+      const errorFields = this.state.errorFields.filter(item => !Validator.validationRules.client[item]);
 
       this.setState({
         errorFields: errorFields
       });
     } else {
-      this.setState(
-        {
-          client : {}
-        }
-      )
+      this.setState({
+        client: {}
+      })
     }
   };
 
@@ -143,39 +138,36 @@ class BookingComponent extends Component {
 
   validate = (key, entity) => {
     if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state[entity][key], entity)) {
-       Validator.errorFields = [...Validator.errorFields, key];
-     } else if (this.isError(key) && Validator.validate(key, this.state.client[key], entity)) {
-       Validator.errorFields = Validator.errorFields.filter(item => item !== key)
-     }
+      Validator.errorFields = [...Validator.errorFields, key];
+    } else if (this.isError(key) && Validator.validate(key, this.state.client[key], entity)) {
+      Validator.errorFields = Validator.errorFields.filter(item => item !== key)
+    }
   };
 
   isError = (key) => {
     return this.state.errorFields.includes(key);
   };
 
-  save = () => {
+  save = async () => {
     this.validateAll();
     const data = {...{client: this.state.client}, ...this.state.booking};
 
     if (!Validator.errorFields.length) {
-      Storage.getItem('access_token').then(result => {
+      const token = await Authorization.getAccessToken();
 
-        if (result) {
-          fetch(Config.Data.apiConfig.bookings, {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + result
-            },
-            method: 'POST',
-            body: JSON.stringify(data)
-          })
-            .then((response) => Actions.main())
-            .catch((error) => {
-            console.error(error);
-          });
-        }
-      });
+      fetch(Config.Data.apiConfig.bookings, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+        .then((response) => Actions.main())
+        .catch((error) => {
+          console.error(error);
+        });
     } else {
       console.error('Fill all fields');
     }
@@ -184,12 +176,13 @@ class BookingComponent extends Component {
   validateAll = () => {
     Validator.errorFields = [];
     for (let key in Validator.validationRules.booking) {
-      this.validate(key,'booking');
-    };
+      this.validate(key, 'booking');
+    }
+    ;
 
     if (!this.state.isOldClient) {
       for (let key in Validator.validationRules.client) {
-        this.validate(key,'client')
+        this.validate(key, 'client')
       }
     }
     this.setState({errorFields: Validator.errorFields});
@@ -198,7 +191,7 @@ class BookingComponent extends Component {
   reset = () => {
     this.setState({booking: {}});
     if (!this.state.isOldClient) {
-      this.setState({client:{}});
+      this.setState({client: {}});
     }
   };
 
@@ -242,7 +235,7 @@ class BookingComponent extends Component {
                 trackColor={'#b1b1b1'}
                 thumbColor={'#ea2e49'}
                 ios_backgroundColor="#3e3e3e"
-                onValueChange={(isOld) =>  this.changeClientMode(isOld)}
+                onValueChange={(isOld) => this.changeClientMode(isOld)}
                 value={this.state.isOldClient}
               />
             </View>
@@ -265,7 +258,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('lastName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(lastName) => this.setClientProperty('lastName', lastName)}
-                    onBlur={() => this.validate('lastName','client')}
+                    onBlur={() => this.validate('lastName', 'client')}
                     value={this.state.client.lastName}/>
                 </View>
                 <View style={styles.row}>
@@ -273,7 +266,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('firstName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(firstName) => this.setClientProperty('firstName', firstName)}
-                    onBlur={() => this.validate('firstName','client')}
+                    onBlur={() => this.validate('firstName', 'client')}
                     value={this.state.client.firstName}/>
                 </View>
                 <View style={styles.row}>
@@ -281,7 +274,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('phone1') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(phone1) => this.setClientProperty('phone1', phone1)}
-                    onBlur={() => this.validate('phone1','client')}
+                    onBlur={() => this.validate('phone1', 'client')}
                     value={this.state.client.phone1}/>
                 </View>
                 <View style={styles.row}>
@@ -297,7 +290,7 @@ class BookingComponent extends Component {
                   <TextInput
                     style={this.isError('registerCity') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                     onChangeText={(registerCity) => this.setClientProperty('registerCity', registerCity)}
-                    onBlur={() => this.validate('registerCity','client')}
+                    onBlur={() => this.validate('registerCity', 'client')}
                     value={this.state.client.registerCity}/>
                 </View>
               </View>
@@ -311,7 +304,12 @@ class BookingComponent extends Component {
                     textAlign: 'center'
                   }}>{Translations.chooseStartDate[Config.Constants.language]}</Text>
               </TouchableHighlight>
-              <Text style={{height:40, paddingTop:10, paddingLeft:30, fontSize:16}}>{this.state.booking.startDate}</Text>
+              <Text style={{
+                height: 40,
+                paddingTop: 10,
+                paddingLeft: 30,
+                fontSize: 16
+              }}>{this.state.booking.startDate}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.centerLabel}>{Translations.chooseStartTime[Config.Constants.language]}</Text>
@@ -333,7 +331,8 @@ class BookingComponent extends Component {
                     textAlign: 'center'
                   }}>{Translations.chooseEndDate[Config.Constants.language]}</Text>
               </TouchableHighlight>
-              <Text style={{height:40, paddingTop:10, paddingLeft:30, fontSize:16}}>{this.state.booking.endDate}</Text>
+              <Text
+                style={{height: 40, paddingTop: 10, paddingLeft: 30, fontSize: 16}}>{this.state.booking.endDate}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.centerLabel}>{Translations.chooseEndTime[Config.Constants.language]}</Text>
@@ -349,9 +348,9 @@ class BookingComponent extends Component {
             <View style={styles.row}>
               <Text style={styles.label}>{Translations.numberOfGuests[Config.Constants.language]}</Text>
               <TextInput
-                style={this.isError('numberOfGuests') ?  styles.inputBorderedLongError : styles.inputBorderedLong}
+                style={this.isError('numberOfGuests') ? styles.inputBorderedLongError : styles.inputBorderedLong}
                 onChangeText={(numberOfGuests) => this.setBookingProperty('numberOfGuests', +numberOfGuests.replace(/[^0-9]/g, ''))}
-                onBlur={() => this.validate('numberOfGuests','booking')}
+                onBlur={() => this.validate('numberOfGuests', 'booking')}
                 keyboardType='numeric'
                 value={this.state.booking.numberOfGuests + ''}/>
             </View>
@@ -372,8 +371,8 @@ class BookingComponent extends Component {
           </View>
         </ScrollView>
         {(this.state.showEndDatePiker || this.state.showStartDatePiker) && (
-            <View style={mainStyles.Mask}></View>
-          )}
+          <View style={mainStyles.Mask}></View>
+        )}
         {this.state.showStartDatePiker && (
           <View style={styles.calendar}>
             <Calendar
@@ -436,10 +435,10 @@ const styles = StyleSheet.create({
     minWidth: 100,
     marginRight: 10
   },
-  centerLabel:{
-    marginTop:10,
-    minWidth:200,
-    marginRight:10
+  centerLabel: {
+    marginTop: 10,
+    minWidth: 200,
+    marginRight: 10
   },
   row: {
     flex: 1,
@@ -455,31 +454,31 @@ const styles = StyleSheet.create({
     padding: 10,
     zIndex: 2,
     height: 40,
-    minWidth:100,
-    borderColor:'black',
-    borderWidth:0
+    minWidth: 100,
+    borderColor: 'black',
+    borderWidth: 0
   },
   calendar: {
     position: 'absolute',
     margin: 'auto',
-    zIndex:9
+    zIndex: 9
   },
   secondaryButton: {
     backgroundColor: '#b1b1b1',
     padding: 10,
     zIndex: 2,
     height: 40,
-    marginRight:10
+    marginRight: 10
   },
   errorButton: {
     backgroundColor: '#b1b1b1',
-    borderWidth:1,
-    borderColor:'red',
-    color:'red',
+    borderWidth: 1,
+    borderColor: 'red',
+    color: 'red',
     padding: 10,
     zIndex: 2,
     height: 40,
-    marginRight:10
+    marginRight: 10
   }
 });
 

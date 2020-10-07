@@ -9,7 +9,9 @@ const Data = {
     clients: `${Constants.apiUrl}/clients`,
     bookings: `${Constants.apiUrl}/bookings`,
     users: `${Constants.apiUrl}/users`,
-    login: `${Constants.apiUrl}/auth/login`
+    login: `${Constants.apiUrl}/auth/login`,
+    logout:`${Constants.apiUrl}/ayth/logout`,
+    refresh: `${Constants.apiUrl}/auth/refresh`
   }
 };
 

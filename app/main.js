@@ -6,8 +6,9 @@ import {
   View,
   Text, TouchableHighlight,
 } from 'react-native';
+
 import mainStyles from './styles';
-import Storage from './storage';
+import Authorization from './auth';
 
 class MainComponent extends Component {
   constructor(props) {
@@ -15,10 +16,10 @@ class MainComponent extends Component {
   }
 
 
-  logout() {
-    Storage.removeItem('access_token').then(() => {
-      Actions.login();
-    }, error => console.error(error))
+  async logout() {
+    const loginInfo =await Authorization.getAccessToken();
+
+    await Authorization.logout(loginInfo.login);
   }
 
 

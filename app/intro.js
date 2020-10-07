@@ -14,7 +14,7 @@ class IntroComponent extends Component {
   }
 
   componentDidMount = () => {
-    Storage.getItem('access_token').then(result => {
+    Storage.getItem('userInfo').then(result => {
       if (result) {
         Actions.main();
       } else {

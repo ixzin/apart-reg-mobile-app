@@ -4,11 +4,12 @@ import {
   Text, StyleSheet, TextInput, ScrollView, TouchableHighlight, Alert,
 } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import Storage from './storage';
+
 import Validator from './validator';
 import Config from './config';
 import Translations from './translations';
 import mainStyles from './styles';
+import Authorization from './auth';
 
 class ApartmentComponent extends Component {
   constructor(props) {
@@ -39,27 +40,25 @@ class ApartmentComponent extends Component {
     });
   };
 
-  save = () => {
+  save = async () => {
     this.validateAll();
     if (!Validator.errorFields.length) {
-      Storage.getItem('access_token').then(result => {
-        if (result) {
-          fetch(Config.Data.apiConfig.apartments, {
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + result
-            },
-            method: 'POST',
-            body: JSON.stringify(this.state.apartment)
-          })
-            .then((response) => response.json())
-            .then((responseJson) => {
-              Actions.main();
-            }).catch((error) => {
-            console.error(error);
-          });
-        }
+      const token = await Authorization.getAccessToken();
+      console.log(token);
+      fetch(Config.Data.apiConfig.apartments, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        method: 'POST',
+        body: JSON.stringify(this.state.apartment)
+      })
+        .then((response) => response.json())
+        .then((responseJson) => {
+          Actions.main();
+        }).catch((error) => {
+        console.error(error);
       });
     } else {
       console.error('Fill all fields');
@@ -70,7 +69,8 @@ class ApartmentComponent extends Component {
     Validator.errorFields = [];
     for (let key in Validator.validationRules.apartment) {
       this.validate(key);
-    };
+    }
+    ;
     this.setState({errorFields: Validator.errorFields});
   };
 
