@@ -1,10 +1,16 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   View,
-  Text, StyleSheet, TextInput, ScrollView, TouchableHighlight, Picker, Switch,
+  Text,
+  StyleSheet,
+  TextInput,
+  ScrollView,
+  TouchableHighlight,
+  Picker,
+  Switch,
 } from 'react-native';
-import { Actions } from 'react-native-router-flux';
-import { Calendar } from 'react-native-calendars';
+import {Actions} from 'react-native-router-flux';
+import {Calendar} from 'react-native-calendars';
 
 import Validator from './validator';
 import Config from './config';
@@ -22,7 +28,7 @@ class BookingComponent extends Component {
         endDate: null,
         startTime: '17:00',
         endTime: '11:00',
-        numberOfGuests: 1
+        numberOfGuests: 1,
       },
       clients: null,
       client: {},
@@ -31,7 +37,7 @@ class BookingComponent extends Component {
       isOldClient: false,
       showStartDatePiker: false,
       showEndDatePiker: false,
-      timeValues: timeValues
+      timeValues: timeValues,
     };
   }
 
@@ -42,14 +48,14 @@ class BookingComponent extends Component {
   onStartDateChange = (selectedDate) => {
     this.setBookingProperty('startDate', selectedDate.dateString);
     this.setState({
-      showStartDatePiker: false
+      showStartDatePiker: false,
     });
   };
 
   onEndDateChange = (selectedDate) => {
     this.setBookingProperty('endDate', selectedDate.dateString);
     this.setState({
-      showEndDatePiker: false
+      showEndDatePiker: false,
     });
   };
 
@@ -58,9 +64,9 @@ class BookingComponent extends Component {
 
     fetch(Config.Data.apiConfig.apartments, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        Authorization: 'Bearer ' + token,
       },
       method: 'GET',
     })
@@ -69,12 +75,13 @@ class BookingComponent extends Component {
         if (Array.isArray(responseJson)) {
           this.setState({apartments: responseJson});
           this.setState({
-            booking: {...this.state.booking, apartmentId: responseJson[0]._id}
+            booking: {...this.state.booking, apartmentId: responseJson[0]._id},
           });
         }
-      }).catch((error) => {
-      console.error(error);
-    });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   getClients = async () => {
@@ -82,65 +89,79 @@ class BookingComponent extends Component {
 
     fetch(Config.Data.apiConfig.clients, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token
+        Authorization: 'Bearer ' + token,
       },
       method: 'GET',
     })
       .then((response) => response.json())
       .then((responseJson) => {
-
         if (Array.isArray(responseJson)) {
           this.setState({clients: responseJson});
           if (responseJson && responseJson.length) {
             const firstClient = responseJson[0];
             this.setState({
-              client: {clientId: firstClient._id, firstName: firstClient.firstName, lastName: firstClient.lastName}
+              client: {
+                clientId: firstClient._id,
+                firstName: firstClient.firstName,
+                lastName: firstClient.lastName,
+              },
             });
           }
         }
-      }).catch((error) => {
-      console.error(error);
-    });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   changeClientMode = async (isOldClient) => {
     this.setState({
-      isOldClient: isOldClient
+      isOldClient: isOldClient,
     });
     if (isOldClient) {
       await this.getClients();
 
-      const errorFields = this.state.errorFields.filter(item => !Validator.validationRules.client[item]);
+      const errorFields = this.state.errorFields.filter(
+        (item) => !Validator.validationRules.client[item],
+      );
 
       this.setState({
-        errorFields: errorFields
+        errorFields: errorFields,
       });
     } else {
       this.setState({
-        client: {}
-      })
+        client: {},
+      });
     }
   };
 
   setBookingProperty = (key, value) => {
     this.setState({
-      booking: {...this.state.booking, [key]: value}
+      booking: {...this.state.booking, [key]: value},
     });
   };
 
   setClientProperty = (key, value) => {
     this.setState({
-      client: {...this.state.client, [key]: value}
+      client: {...this.state.client, [key]: value},
     });
   };
 
   validate = (key, entity) => {
-    if (!Validator.errorFields.includes(key) && !Validator.validate(key, this.state[entity][key], entity)) {
+    if (
+      !Validator.errorFields.includes(key) &&
+      !Validator.validate(key, this.state[entity][key], entity)
+    ) {
       Validator.errorFields = [...Validator.errorFields, key];
-    } else if (this.isError(key) && Validator.validate(key, this.state.client[key], entity)) {
-      Validator.errorFields = Validator.errorFields.filter(item => item !== key)
+    } else if (
+      this.isError(key) &&
+      Validator.validate(key, this.state.client[key], entity)
+    ) {
+      Validator.errorFields = Validator.errorFields.filter(
+        (item) => item !== key,
+      );
     }
   };
 
@@ -157,12 +178,12 @@ class BookingComponent extends Component {
 
       fetch(Config.Data.apiConfig.bookings, {
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
+          Authorization: 'Bearer ' + token,
         },
         method: 'POST',
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       })
         .then((response) => Actions.main())
         .catch((error) => {
@@ -178,11 +199,10 @@ class BookingComponent extends Component {
     for (let key in Validator.validationRules.booking) {
       this.validate(key, 'booking');
     }
-    ;
 
     if (!this.state.isOldClient) {
       for (let key in Validator.validationRules.client) {
-        this.validate(key, 'client')
+        this.validate(key, 'client');
       }
     }
     this.setState({errorFields: Validator.errorFields});
@@ -199,35 +219,48 @@ class BookingComponent extends Component {
     Actions.main();
   };
 
-
   render() {
     return (
-
       <View style={mainStyles.container}>
         <ScrollView>
           <View style={mainStyles.contentWrapper}>
-            <Text style={mainStyles.header}>{Translations.newBooking[Config.Constants.language]}</Text>
+            <Text style={mainStyles.header}>
+              {Translations.newBooking[Config.Constants.language]}
+            </Text>
             <View style={styles.row}>
-              <Text style={{
-                fontWeight: 'bold',
-                fontSize: 16
-              }}>{Translations.chooseApartment[Config.Constants.language]}</Text>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                }}>
+                {Translations.chooseApartment[Config.Constants.language]}
+              </Text>
             </View>
             {this.state.apartments.length > 0 && (
               <View style={styles.row}>
                 <Picker
                   selectedValue={this.state.booking.apartmentId || '...'}
                   style={mainStyles.picker}
-                  onValueChange={(itemValue, itemIndex) => this.setBookingProperty('apartmentId', itemValue)}>
+                  onValueChange={(itemValue, itemIndex) =>
+                    this.setBookingProperty('apartmentId', itemValue)
+                  }>
                   {this.state.apartments.map((item, index) => {
-                    return (<Picker.Item label={item.street} value={item._id} key={index}/>)
+                    return (
+                      <Picker.Item
+                        label={item.street}
+                        value={item._id}
+                        key={index}
+                      />
+                    );
                   })}
                 </Picker>
               </View>
             )}
 
             <View style={styles.row}>
-              <Text style={{fontWeight: 'bold', fontSize: 16}}>{Translations.client[Config.Constants.language]}</Text>
+              <Text style={{fontWeight: 'bold', fontSize: 16}}>
+                {Translations.client[Config.Constants.language]}
+              </Text>
             </View>
             <View style={styles.row}>
               <Text>{Translations.oldCLient[Config.Constants.language]}</Text>
@@ -239,139 +272,259 @@ class BookingComponent extends Component {
                 value={this.state.isOldClient}
               />
             </View>
-            {this.state.isOldClient && this.state.clients && this.state.clients.length > 0 && (
-              <View style={styles.row}>
-                <Picker
-                  selectedValue={this.state.client._id || '...'}
-                  style={mainStyles.picker}
-                  onValueChange={(itemValue, itemIndex) => this.setClientProperty('_id', itemValue)}>
-                  {this.state.clients.map((item, index) => {
-                    return (<Picker.Item label={`${item.firstName} ${item.lastName}`} value={item._id} key={index}/>)
-                  })}
-                </Picker>
-              </View>
-            )}
+            {this.state.isOldClient &&
+              this.state.clients &&
+              this.state.clients.length > 0 && (
+                <View style={styles.row}>
+                  <Picker
+                    selectedValue={this.state.client._id || '...'}
+                    style={mainStyles.picker}
+                    onValueChange={(itemValue, itemIndex) =>
+                      this.setClientProperty('_id', itemValue)
+                    }>
+                    {this.state.clients.map((item, index) => {
+                      return (
+                        <Picker.Item
+                          label={`${item.firstName} ${item.lastName}`}
+                          value={item._id}
+                          key={index}
+                        />
+                      );
+                    })}
+                  </Picker>
+                </View>
+              )}
             {!this.state.isOldClient && (
               <View style={styles.column}>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{Translations.lastName[Config.Constants.language]}</Text>
+                  <Text style={styles.label}>
+                    {Translations.lastName[Config.Constants.language]}
+                  </Text>
                   <TextInput
-                    style={this.isError('lastName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(lastName) => this.setClientProperty('lastName', lastName)}
+                    style={
+                      this.isError('lastName')
+                        ? styles.inputBorderedLongError
+                        : styles.inputBorderedLong
+                    }
+                    onChangeText={(lastName) =>
+                      this.setClientProperty('lastName', lastName)
+                    }
                     onBlur={() => this.validate('lastName', 'client')}
-                    value={this.state.client.lastName}/>
+                    value={this.state.client.lastName}
+                  />
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{Translations.firstName[Config.Constants.language]}</Text>
+                  <Text style={styles.label}>
+                    {Translations.firstName[Config.Constants.language]}
+                  </Text>
                   <TextInput
-                    style={this.isError('firstName') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(firstName) => this.setClientProperty('firstName', firstName)}
+                    style={
+                      this.isError('firstName')
+                        ? styles.inputBorderedLongError
+                        : styles.inputBorderedLong
+                    }
+                    onChangeText={(firstName) =>
+                      this.setClientProperty('firstName', firstName)
+                    }
                     onBlur={() => this.validate('firstName', 'client')}
-                    value={this.state.client.firstName}/>
+                    value={this.state.client.firstName}
+                  />
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{Translations.phone1[Config.Constants.language]}</Text>
+                  <Text style={styles.label}>
+                    {Translations.phone1[Config.Constants.language]}
+                  </Text>
                   <TextInput
-                    style={this.isError('phone1') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(phone1) => this.setClientProperty('phone1', phone1)}
+                    style={
+                      this.isError('phone1')
+                        ? styles.inputBorderedLongError
+                        : styles.inputBorderedLong
+                    }
+                    onChangeText={(phone1) =>
+                      this.setClientProperty('phone1', phone1)
+                    }
                     onBlur={() => this.validate('phone1', 'client')}
-                    value={this.state.client.phone1}/>
+                    value={this.state.client.phone1}
+                  />
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{Translations.phone2[Config.Constants.language]}</Text>
+                  <Text style={styles.label}>
+                    {Translations.phone2[Config.Constants.language]}
+                  </Text>
                   <TextInput
-                    style={this.isError('phone2') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(phone2) => this.setClientProperty('phone2', phone2)}
+                    style={
+                      this.isError('phone2')
+                        ? styles.inputBorderedLongError
+                        : styles.inputBorderedLong
+                    }
+                    onChangeText={(phone2) =>
+                      this.setClientProperty('phone2', phone2)
+                    }
                     onBlur={() => this.validate('phone2')}
-                    value={this.state.client.phone2}/>
+                    value={this.state.client.phone2}
+                  />
                 </View>
                 <View style={styles.row}>
-                  <Text style={styles.label}>{Translations.register[Config.Constants.language]}</Text>
+                  <Text style={styles.label}>
+                    {Translations.register[Config.Constants.language]}
+                  </Text>
                   <TextInput
-                    style={this.isError('registerCity') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                    onChangeText={(registerCity) => this.setClientProperty('registerCity', registerCity)}
+                    style={
+                      this.isError('registerCity')
+                        ? styles.inputBorderedLongError
+                        : styles.inputBorderedLong
+                    }
+                    onChangeText={(registerCity) =>
+                      this.setClientProperty('registerCity', registerCity)
+                    }
                     onBlur={() => this.validate('registerCity', 'client')}
-                    value={this.state.client.registerCity}/>
+                    value={this.state.client.registerCity}
+                  />
                 </View>
               </View>
             )}
             <View style={styles.row}>
-              <TouchableHighlight onPress={() => this.setState({showStartDatePiker: true})}
-                                  style={this.isError('startDate') ? styles.errorButton : styles.secondaryButton}>
+              <TouchableHighlight
+                onPress={() => this.setState({showStartDatePiker: true})}
+                style={
+                  this.isError('startDate')
+                    ? styles.errorButton
+                    : styles.secondaryButton
+                }>
                 <Text
                   style={{
                     color: 'black',
-                    textAlign: 'center'
-                  }}>{Translations.chooseStartDate[Config.Constants.language]}</Text>
+                    textAlign: 'center',
+                  }}>
+                  {Translations.chooseStartDate[Config.Constants.language]}
+                </Text>
               </TouchableHighlight>
-              <Text style={{
-                height: 40,
-                paddingTop: 10,
-                paddingLeft: 30,
-                fontSize: 16
-              }}>{this.state.booking.startDate}</Text>
+              <Text
+                style={{
+                  height: 40,
+                  paddingTop: 10,
+                  paddingLeft: 30,
+                  fontSize: 16,
+                }}>
+                {this.state.booking.startDate}
+              </Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.centerLabel}>{Translations.chooseStartTime[Config.Constants.language]}</Text>
+              <Text style={styles.centerLabel}>
+                {Translations.chooseStartTime[Config.Constants.language]}
+              </Text>
               <Picker
                 selectedValue={this.state.booking.startTime}
                 style={mainStyles.rightSmallPicker}
-                onValueChange={(itemValue, itemIndex) => this.setBookingProperty('startTime', itemValue)}>
+                onValueChange={(itemValue, itemIndex) =>
+                  this.setBookingProperty('startTime', itemValue)
+                }>
                 {this.state.timeValues.map((item, index) => {
-                  return (<Picker.Item label={item.key} value={item.value} key={index}/>)
+                  return (
+                    <Picker.Item
+                      label={item.key}
+                      value={item.value}
+                      key={index}
+                    />
+                  );
                 })}
               </Picker>
             </View>
             <View style={styles.row}>
-              <TouchableHighlight onPress={() => this.setState({showEndDatePiker: true})}
-                                  style={this.isError('endDate') ? styles.errorButton : styles.secondaryButton}>
+              <TouchableHighlight
+                onPress={() => this.setState({showEndDatePiker: true})}
+                style={
+                  this.isError('endDate')
+                    ? styles.errorButton
+                    : styles.secondaryButton
+                }>
                 <Text
                   style={{
                     color: 'black',
-                    textAlign: 'center'
-                  }}>{Translations.chooseEndDate[Config.Constants.language]}</Text>
+                    textAlign: 'center',
+                  }}>
+                  {Translations.chooseEndDate[Config.Constants.language]}
+                </Text>
               </TouchableHighlight>
               <Text
-                style={{height: 40, paddingTop: 10, paddingLeft: 30, fontSize: 16}}>{this.state.booking.endDate}</Text>
+                style={{
+                  height: 40,
+                  paddingTop: 10,
+                  paddingLeft: 30,
+                  fontSize: 16,
+                }}>
+                {this.state.booking.endDate}
+              </Text>
             </View>
             <View style={styles.row}>
-              <Text style={styles.centerLabel}>{Translations.chooseEndTime[Config.Constants.language]}</Text>
+              <Text style={styles.centerLabel}>
+                {Translations.chooseEndTime[Config.Constants.language]}
+              </Text>
               <Picker
                 selectedValue={this.state.booking.endTime}
                 style={mainStyles.rightSmallPicker}
-                onValueChange={(itemValue, itemIndex) => this.setBookingProperty('endTime', itemValue)}>
+                onValueChange={(itemValue, itemIndex) =>
+                  this.setBookingProperty('endTime', itemValue)
+                }>
                 {this.state.timeValues.map((item, index) => {
-                  return (<Picker.Item label={item.key} value={item.value} key={index}/>)
+                  return (
+                    <Picker.Item
+                      label={item.key}
+                      value={item.value}
+                      key={index}
+                    />
+                  );
                 })}
               </Picker>
             </View>
             <View style={styles.row}>
-              <Text style={styles.label}>{Translations.numberOfGuests[Config.Constants.language]}</Text>
+              <Text style={styles.label}>
+                {Translations.numberOfGuests[Config.Constants.language]}
+              </Text>
               <TextInput
-                style={this.isError('numberOfGuests') ? styles.inputBorderedLongError : styles.inputBorderedLong}
-                onChangeText={(numberOfGuests) => this.setBookingProperty('numberOfGuests', +numberOfGuests.replace(/[^0-9]/g, ''))}
+                style={
+                  this.isError('numberOfGuests')
+                    ? styles.inputBorderedLongError
+                    : styles.inputBorderedLong
+                }
+                onChangeText={(numberOfGuests) =>
+                  this.setBookingProperty(
+                    'numberOfGuests',
+                    +numberOfGuests.replace(/[^0-9]/g, ''),
+                  )
+                }
                 onBlur={() => this.validate('numberOfGuests', 'booking')}
-                keyboardType='numeric'
-                value={this.state.booking.numberOfGuests + ''}/>
+                keyboardType="numeric"
+                value={this.state.booking.numberOfGuests + ''}
+              />
             </View>
             <View style={styles.row}>
-              <TouchableHighlight onPress={() => this.save()} style={mainStyles.primaryButton}>
-                <Text
-                  style={{color: 'white', textAlign: 'center'}}>{Translations.save[Config.Constants.language]}</Text>
+              <TouchableHighlight
+                onPress={() => this.save()}
+                style={mainStyles.primaryButton}>
+                <Text style={{color: 'white', textAlign: 'center'}}>
+                  {Translations.save[Config.Constants.language]}
+                </Text>
               </TouchableHighlight>
-              <TouchableHighlight onPress={() => this.reset()} style={mainStyles.secondaryButton}>
-                <Text
-                  style={{color: 'black', textAlign: 'center'}}>{Translations.reset[Config.Constants.language]}</Text>
+              <TouchableHighlight
+                onPress={() => this.reset()}
+                style={mainStyles.secondaryButton}>
+                <Text style={{color: 'black', textAlign: 'center'}}>
+                  {Translations.reset[Config.Constants.language]}
+                </Text>
               </TouchableHighlight>
-              <TouchableHighlight onPress={() => this.return()} style={mainStyles.primaryButton}>
-                <Text
-                  style={{color: 'white', textAlign: 'center'}}>{Translations.return[Config.Constants.language]}</Text>
+              <TouchableHighlight
+                onPress={() => this.return()}
+                style={mainStyles.primaryButton}>
+                <Text style={{color: 'white', textAlign: 'center'}}>
+                  {Translations.return[Config.Constants.language]}
+                </Text>
               </TouchableHighlight>
             </View>
           </View>
         </ScrollView>
         {(this.state.showEndDatePiker || this.state.showStartDatePiker) && (
-          <View style={mainStyles.Mask}></View>
+          <View style={mainStyles.Mask} />
         )}
         {this.state.showStartDatePiker && (
           <View style={styles.calendar}>
@@ -379,32 +532,35 @@ class BookingComponent extends Component {
               minDate={Config.Dates.min}
               maxDate={Config.Dates.max}
               onDayPress={(day) => {
-                this.onStartDateChange(day)
+                this.onStartDateChange(day);
               }}
               monthFormat={'yyyy MM'}
               disableMonthChange={true}
               firstDay={1}
               disableAllTouchEventsForDisabledDays={true}
               enableSwipeMonths={true}
-            /></View>)}
+            />
+          </View>
+        )}
         {this.state.showEndDatePiker && (
           <View style={styles.calendar}>
             <Calendar
               minDate={Config.Dates.min}
               maxDate={Config.Dates.max}
               onDayPress={(day) => {
-                this.onEndDateChange(day)
+                this.onEndDateChange(day);
               }}
               monthFormat={'yyyy MM'}
               disableMonthChange={true}
               firstDay={1}
               disableAllTouchEventsForDisabledDays={true}
               enableSwipeMonths={true}
-            /></View>)}
+            />
+          </View>
+        )}
       </View>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
@@ -417,7 +573,7 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     paddingBottom: 2,
     paddingRight: 5,
-    paddingLeft: 5
+    paddingLeft: 5,
   },
   inputBorderedLongError: {
     borderWidth: 1,
@@ -428,27 +584,27 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     paddingBottom: 2,
     paddingRight: 5,
-    paddingLeft: 5
+    paddingLeft: 5,
   },
   label: {
     marginTop: 0,
     minWidth: 100,
-    marginRight: 10
+    marginRight: 10,
   },
   centerLabel: {
     marginTop: 10,
     minWidth: 200,
-    marginRight: 10
+    marginRight: 10,
   },
   row: {
     flex: 1,
     flexDirection: 'row',
     marginBottom: 20,
-    marginLeft: 0
+    marginLeft: 0,
   },
   column: {
     flex: 1,
-    flexDirection: 'column'
+    flexDirection: 'column',
   },
   calendarPiker: {
     padding: 10,
@@ -456,19 +612,19 @@ const styles = StyleSheet.create({
     height: 40,
     minWidth: 100,
     borderColor: 'black',
-    borderWidth: 0
+    borderWidth: 0,
   },
   calendar: {
     position: 'absolute',
     margin: 'auto',
-    zIndex: 9
+    zIndex: 9,
   },
   secondaryButton: {
     backgroundColor: '#b1b1b1',
     padding: 10,
     zIndex: 2,
     height: 40,
-    marginRight: 10
+    marginRight: 10,
   },
   errorButton: {
     backgroundColor: '#b1b1b1',
@@ -478,9 +634,8 @@ const styles = StyleSheet.create({
     padding: 10,
     zIndex: 2,
     height: 40,
-    marginRight: 10
-  }
+    marginRight: 10,
+  },
 });
-
 
 export default BookingComponent;
