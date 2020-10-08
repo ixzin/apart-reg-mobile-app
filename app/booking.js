@@ -8,6 +8,7 @@ import {
   TouchableHighlight,
   Picker,
   Switch,
+  Alert,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import {Calendar} from 'react-native-calendars';
@@ -24,7 +25,7 @@ class BookingComponent extends Component {
     const timeValues = Config.generateTimeValues();
     this.state = {
       booking: {
-        startDate: null,
+        startDate: this.props.startDate || null,
         endDate: null,
         startTime: '17:00',
         endTime: '11:00',
@@ -170,27 +171,34 @@ class BookingComponent extends Component {
   };
 
   save = async () => {
-    this.validateAll();
-    const data = {...{client: this.state.client}, ...this.state.booking};
+    const startDate = new Date(this.state.booking.startDate);
+    const endDate = new Date(this.state.booking.endDate);
+    console.log(startDate, endDate);
+    if (startDate.getTime() < endDate.getTime()) {
+      this.validateAll();
+      const data = {...{client: this.state.client}, ...this.state.booking};
 
-    if (!Validator.errorFields.length) {
-      const token = await Authorization.getAccessToken();
+      if (!Validator.errorFields.length) {
+        const token = await Authorization.getAccessToken();
 
-      fetch(Config.Data.apiConfig.bookings, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + token,
-        },
-        method: 'POST',
-        body: JSON.stringify(data),
-      })
-        .then((response) => Actions.main())
-        .catch((error) => {
-          console.error(error);
-        });
+        fetch(Config.Data.apiConfig.bookings, {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token,
+          },
+          method: 'POST',
+          body: JSON.stringify(data),
+        })
+          .then((response) => Actions.main())
+          .catch((error) => {
+            console.error(error);
+          });
+      } else {
+        console.error('Fill all fields');
+      }
     } else {
-      console.error('Fill all fields');
+      Alert.alert(Translations.dateStartError[Config.Constants.language]);
     }
   };
 
@@ -277,10 +285,14 @@ class BookingComponent extends Component {
               this.state.clients.length > 0 && (
                 <View style={styles.row}>
                   <Picker
-                    selectedValue={this.state.client._id || '...'}
+                    selectedValue={
+                      this.state.client._id ||
+                      this.state.client.clientId ||
+                      '...'
+                    }
                     style={mainStyles.picker}
                     onValueChange={(itemValue, itemIndex) =>
-                      this.setClientProperty('_id', itemValue)
+                      this.setClientProperty('clientId', itemValue)
                     }>
                     {this.state.clients.map((item, index) => {
                       return (

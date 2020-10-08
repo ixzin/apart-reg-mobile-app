@@ -25,6 +25,9 @@ class CalendarComponent extends Component {
       apartmentId: null,
       markedDates: {},
       currentDate: null,
+      currentBooking: null,
+      currentClient: null,
+      isEmptyDay: false,
     };
   }
 
@@ -80,14 +83,61 @@ class CalendarComponent extends Component {
         let markers = {};
         responseJson.forEach((date) => {
           let fullDate = new Date(date.date);
+
           markers[fullDate.toISOString().split('T')[0]] = {
+            color: date.color,
             startingDay: date.isStart,
             endingDay: date.isEnd,
-            color: date.color,
+            bookingId: date.bookingId,
           };
         });
         this.setState({
           markedDates: markers,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  getBookingById = async (bookingId) => {
+    const token = await Authorization.getAccessToken();
+
+    fetch(`${Config.Data.apiConfig.bookings}/${bookingId}`, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          currentBooking: responseJson,
+        });
+        this.getClientById(responseJson.clientId);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  getClientById = async (clientId) => {
+    const token = await Authorization.getAccessToken();
+
+    fetch(`${Config.Data.apiConfig.clients}/${clientId}`, {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+      method: 'GET',
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        this.setState({
+          currentClient: responseJson,
         });
       })
       .catch((error) => {
@@ -115,7 +165,19 @@ class CalendarComponent extends Component {
     );
   };
 
-  onStartDateChange = async (day) => {};
+  onDayPress = async (date) => {
+    const bookingId =
+      this.state.markedDates[date.dateString] &&
+      this.state.markedDates[date.dateString].bookingId;
+    if (bookingId) {
+      await this.getBookingById(bookingId);
+    } else {
+      this.setState({
+        isEmptyDay: true,
+        currentDate: date.dateString,
+      });
+    }
+  };
 
   getFirstDayOfMonth = (date?) => {
     let fullDate = date ? new Date(date) : new Date();
@@ -166,10 +228,20 @@ class CalendarComponent extends Component {
             <View style={styles.row}>
               <Calendar
                 onDayPress={(day) => {
-                  this.onStartDateChange(day);
+                  this.onDayPress(day);
                 }}
                 hideExtraDays={true}
                 onMonthChange={(month) => this.onCalendarMonthChange(month)}
+                theme={{
+                  'stylesheet.day.period': {
+                    base: {
+                      overflow: 'hidden',
+                      height: 34,
+                      alignItems: 'center',
+                      width: 38,
+                    },
+                  },
+                }}
                 markedDates={{...this.state.markedDates}}
                 markingType={'period'}
                 monthFormat={'yyyy MM'}
@@ -190,42 +262,122 @@ class CalendarComponent extends Component {
             </View>
           </View>
         </ScrollView>
+        {(this.state.currentBooking || this.state.isEmptyDay) && (
+          <View style={mainStyles.Mask} />
+        )}
+        {this.state.currentBooking && (
+          <View style={styles.bookingSwitcher}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}>
+              <Text style={{fontSize: 18}}>
+                {Translations.booking[Config.Constants.language]}
+              </Text>
+              <TouchableHighlight
+                onPress={() =>
+                  this.setState({currentBooking: null, currentClient: null})
+                }>
+                <Text>{Translations.close[Config.Constants.language]}</Text>
+              </TouchableHighlight>
+            </View>
+            {this.state.currentClient && (
+              <View>
+                <View style={styles.modalRow}>
+                  <Text style={{marginTop: 10, fontSize: 16}}>
+                    {this.state.currentClient.lastName}{' '}
+                    {this.state.currentClient.firstName}
+                  </Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text>
+                    {Translations.phones[Config.Constants.language]}
+                    {':  '}
+                    {this.state.currentClient.phone1}
+                    {this.state.currentClient.phone2
+                      ? ',' + this.state.currentClient.phone2
+                      : ''}
+                  </Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text>
+                    {Translations.register[Config.Constants.language]}
+                    {':  '}
+                    {this.state.currentClient.registerCity}
+                  </Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text>
+                    {Translations.numberOfGuests[Config.Constants.language]}
+                    {':  '}
+                    {this.state.currentBooking.numberOfGuests}{' '}
+                    {Translations.person[Config.Constants.language]}
+                  </Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text>
+                    {this.state.currentBooking.startDate} {'  '}
+                    {this.state.currentBooking.startTime}
+                  </Text>
+                </View>
+                <View style={styles.modalRow}>
+                  <Text>
+                    {this.state.currentBooking.endDate} {'  '}
+                    {this.state.currentBooking.endTime}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+        {this.state.isEmptyDay && (
+          <View style={styles.bookingSwitcher}>
+            <View style={styles.row}>
+              <Text style={{marginTop: 10, fontSize: 21}}>
+                {this.state.currentDate}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={{marginTop: 10, fontSize: 18}}>
+                {Translations.noBookingText[Config.Constants.language]}
+              </Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}>
+              <TouchableHighlight
+                onPress={() =>
+                  Actions.booking({startDate: this.state.currentDate})
+                }
+                style={mainStyles.primaryButton}>
+                <Text style={{color: 'white', textAlign: 'center'}}>
+                  {Translations.yes[Config.Constants.language]}
+                </Text>
+              </TouchableHighlight>
+              <TouchableHighlight
+                onPress={() => this.setState({isEmptyDay: false})}
+                style={mainStyles.primaryButton}>
+                <Text style={{color: 'white', textAlign: 'center'}}>
+                  {Translations.no[Config.Constants.language]}
+                </Text>
+              </TouchableHighlight>
+            </View>
+          </View>
+        )}
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  inputBorderedLong: {
-    borderWidth: 1,
-    borderColor: 'black',
-    color: 'black',
-    maxHeight: 30,
-    minWidth: 200,
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingRight: 5,
-    paddingLeft: 5,
-  },
-  inputBorderedLongError: {
-    borderWidth: 1,
-    borderColor: 'red',
-    color: 'red',
-    maxHeight: 30,
-    minWidth: 200,
-    paddingTop: 2,
-    paddingBottom: 2,
-    paddingRight: 5,
-    paddingLeft: 5,
-  },
   label: {
     marginTop: 0,
     minWidth: 100,
-    marginRight: 10,
-  },
-  centerLabel: {
-    marginTop: 10,
-    minWidth: 200,
     marginRight: 10,
   },
   row: {
@@ -234,39 +386,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginLeft: 0,
   },
-  column: {
+  modalRow: {
     flex: 1,
-    flexDirection: 'column',
+    flexDirection: 'row',
+    marginBottom: 20,
+    height: 30,
+    marginLeft: 0,
   },
-  calendarPiker: {
-    padding: 10,
-    zIndex: 2,
-    height: 40,
-    minWidth: 100,
-    borderColor: 'black',
-    borderWidth: 0,
-  },
-  calendar: {
+  bookingSwitcher: {
+    top: 20,
     position: 'absolute',
     margin: 'auto',
-    zIndex: 9,
-  },
-  secondaryButton: {
-    backgroundColor: '#b1b1b1',
+    minWidth: 300,
+    backgroundColor: 'white',
     padding: 10,
-    zIndex: 2,
-    height: 40,
-    marginRight: 10,
-  },
-  errorButton: {
-    backgroundColor: '#b1b1b1',
-    borderWidth: 1,
-    borderColor: 'red',
-    color: 'red',
-    padding: 10,
-    zIndex: 2,
-    height: 40,
-    marginRight: 10,
+    zIndex: 99,
   },
 });
 

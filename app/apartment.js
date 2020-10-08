@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TextInput,
   ScrollView,
-  TouchableHighlight
+  TouchableHighlight,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 
@@ -55,7 +55,7 @@ class ApartmentComponent extends Component {
     this.validateAll();
     if (!Validator.errorFields.length) {
       const token = await Authorization.getAccessToken();
-      console.log(token);
+
       fetch(Config.Data.apiConfig.apartments, {
         headers: {
           Accept: 'application/json',
