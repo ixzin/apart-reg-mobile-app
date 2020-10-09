@@ -202,6 +202,14 @@ class BookingComponent extends Component {
     }
   };
 
+  changeApartment = async (value) => {
+    if (value !== this.state.booking.apartmentId) {
+      await this.setBookingProperty('startDate', null);
+      await this.setBookingProperty('endDate', null);
+    }
+    await this.setBookingProperty('apartmentId', value);
+  };
+
   setBookingProperty = (key, value) => {
     this.setState({
       booking: {...this.state.booking, [key]: value},
@@ -238,7 +246,7 @@ class BookingComponent extends Component {
       Validator.errorFields = [...Validator.errorFields, key];
     } else if (
       this.isError(key) &&
-      Validator.validate(key, this.state.client[key], entity)
+      Validator.validate(key, this.state[entity][key], entity)
     ) {
       Validator.errorFields = Validator.errorFields.filter(
         (item) => item !== key,
@@ -330,7 +338,7 @@ class BookingComponent extends Component {
                   selectedValue={this.state.booking.apartmentId || '...'}
                   style={mainStyles.picker}
                   onValueChange={(itemValue, itemIndex) =>
-                    this.setBookingProperty('apartmentId', itemValue)
+                    this.changeApartment(itemValue)
                   }>
                   {this.state.apartments.map((item, index) => {
                     return (
@@ -452,7 +460,6 @@ class BookingComponent extends Component {
                     onChangeText={(phone2) =>
                       this.setClientProperty('phone2', phone2)
                     }
-                    onBlur={() => this.validate('phone2')}
                     value={this.state.client.phone2}
                   />
                 </View>
