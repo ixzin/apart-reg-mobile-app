@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Actions} from 'react-native-router-flux';
 import Config from './config';
 import Translations from './translations';
-import {View, Text, TouchableHighlight} from 'react-native';
+import {View, Text, TouchableHighlight, Image} from 'react-native';
 
 import mainStyles from './styles';
 import Authorization from './auth';
@@ -22,6 +22,10 @@ class MainComponent extends Component {
   render() {
     return (
       <View style={mainStyles.container}>
+        <Image source={require('../img/logo.png')} />
+        <Text style={mainStyles.header}>
+          {Translations.appName[Config.Constants.language]}
+        </Text>
         <View>
           <TouchableHighlight
             onPress={() => Actions.booking()}
