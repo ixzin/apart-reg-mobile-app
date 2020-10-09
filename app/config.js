@@ -1,8 +1,9 @@
-const Constants = {
-  apiUrl: 'http://10.0.3.2:3000',
-  language: 'ru'
-};
+import {LocaleConfig} from 'react-native-calendars';
 
+const Constants = {
+  apiUrl: 'http://10.0.3.2:3001',
+  language: 'ru',
+};
 const Data = {
   apiConfig: {
     apartments: `${Constants.apiUrl}/apartments`,
@@ -10,17 +11,17 @@ const Data = {
     bookings: `${Constants.apiUrl}/bookings`,
     users: `${Constants.apiUrl}/users`,
     login: `${Constants.apiUrl}/auth/login`,
-    logout:`${Constants.apiUrl}/auth/logout`,
+    logout: `${Constants.apiUrl}/auth/logout`,
     refresh: `${Constants.apiUrl}/auth/refresh`,
-    bookingsByPeriod:`${Constants.apiUrl}/bookings/period`
-  }
+    bookingsByPeriod: `${Constants.apiUrl}/bookings/period`,
+  },
 };
 
 const newDate = new Date();
 
 const Dates = {
   min: new Date(),
-  max: (newDate).setMonth(newDate.getMonth() + 1)
+  max: newDate.setMonth(newDate.getMonth() + 2),
 };
 
 const generateTimeValues = () => {
@@ -35,7 +36,7 @@ const generateTimeValues = () => {
     let timeString = `${hours < 10 ? '0' + hours : hours}:${minutes}`;
     timeValues.push({
       key: timeString,
-      value: timeString
+      value: timeString,
     });
 
     if (count % 2) {
@@ -48,4 +49,118 @@ const generateTimeValues = () => {
   return timeValues;
 };
 
-export default {Constants, Data, Dates, generateTimeValues};
+const localeCalendarConfig = {
+  eng: {
+    monthNames: [
+      'Janvier',
+      'Février',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juillet',
+      'Août',
+      'Septembre',
+      'Octobre',
+      'Novembre',
+      'Décembre',
+    ],
+    monthNamesShort: [
+      'Janv.',
+      'Févr.',
+      'Mars',
+      'Avril',
+      'Mai',
+      'Juin',
+      'Juil.',
+      'Août',
+      'Sept.',
+      'Oct.',
+      'Nov.',
+      'Déc.',
+    ],
+    dayNames: [
+      'Dimanche',
+      'Lundi',
+      'Mardi',
+      'Mercredi',
+      'Jeudi',
+      'Vendredi',
+      'Samedi',
+    ],
+    dayNamesShort: ['Dim.', 'Lun.', 'Mar.', 'Mer.', 'Jeu.', 'Ven.', 'Sam.'],
+    today: "Aujourd'hui",
+  },
+  ru: {
+    monthNames: [
+      'Январь',
+      'Февраль',
+      'Март',
+      'Апрель',
+      'Май',
+      'Июнь',
+      'Июль',
+      'Август',
+      'Сентябрь',
+      'Октябрь',
+      'Ноябрь',
+      'Декабрь',
+    ],
+    monthNamesShort: [
+      'Янв',
+      'Фев',
+      'Мар',
+      'Апр',
+      'Май',
+      'Июн',
+      'Июл.',
+      'Авг',
+      'Сен.',
+      'Окт',
+      'Ноя',
+      'Дек',
+    ],
+    dayNames: [
+      'Воскресенье',
+      'Понедельник',
+      'Вторник',
+      'Среда',
+      'Четверг',
+      'Пятница',
+      'Суббота',
+    ],
+    dayNamesShort: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+    today: 'Сегодня',
+  },
+};
+
+const setCalendarLocalization = () => {
+  LocaleConfig.locales[Constants.language] =
+    localeCalendarConfig[Constants.language];
+  LocaleConfig.defaultLocale = Constants.language;
+};
+
+const getFirstDayOfMonth = (date?) => {
+  let fullDate = date ? new Date(date) : new Date();
+  let firstDay = new Date(fullDate.getFullYear(), fullDate.getMonth(), 1);
+
+  return firstDay.toISOString().split('T')[0];
+};
+
+const getLastDayOfMonth = (date?) => {
+  let fullDate = date ? new Date(date) : new Date();
+  let lastDay = new Date(fullDate.getFullYear(), fullDate.getMonth() + 1, 0);
+
+  return lastDay.toISOString().split('T')[0];
+};
+
+export default {
+  Constants,
+  Data,
+  Dates,
+  localeCalendarConfig,
+  setCalendarLocalization,
+  generateTimeValues,
+  getFirstDayOfMonth,
+  getLastDayOfMonth,
+};

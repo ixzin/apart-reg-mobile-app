@@ -3,11 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   ScrollView,
   TouchableHighlight,
   Picker,
-  Switch,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
 import {Calendar} from 'react-native-calendars';
@@ -54,8 +52,8 @@ class CalendarComponent extends Component {
             apartmentId: responseJson[0]._id,
           });
           this.getBookingCalendar(
-            this.getFirstDayOfMonth(),
-            this.getLastDayOfMonth(),
+            Config.getFirstDayOfMonth(),
+            Config.getLastDayOfMonth(),
           );
         }
       })
@@ -150,8 +148,8 @@ class CalendarComponent extends Component {
       apartmentId: value,
     });
     await this.getBookingCalendar(
-      this.getFirstDayOfMonth(this.state.currentDate),
-      this.getLastDayOfMonth(this.state.currentDate),
+      Config.getFirstDayOfMonth(this.state.currentDate),
+      Config.getLastDayOfMonth(this.state.currentDate),
     );
   };
 
@@ -160,8 +158,8 @@ class CalendarComponent extends Component {
       currentDate: month.dateString,
     });
     await this.getBookingCalendar(
-      this.getFirstDayOfMonth(month.dateString),
-      this.getLastDayOfMonth(month.dateString),
+      Config.getFirstDayOfMonth(month.dateString),
+      Config.getLastDayOfMonth(month.dateString),
     );
   };
 
@@ -177,20 +175,6 @@ class CalendarComponent extends Component {
         currentDate: date.dateString,
       });
     }
-  };
-
-  getFirstDayOfMonth = (date?) => {
-    let fullDate = date ? new Date(date) : new Date();
-    let firstDay = new Date(fullDate.getFullYear(), fullDate.getMonth(), 1);
-
-    return firstDay.toISOString().split('T')[0];
-  };
-
-  getLastDayOfMonth = (date?) => {
-    let fullDate = date ? new Date(date) : new Date();
-    let lastDay = new Date(fullDate.getFullYear(), fullDate.getMonth() + 1, 0);
-
-    return lastDay.toISOString().split('T')[0];
   };
 
   return = () => {
@@ -242,6 +226,7 @@ class CalendarComponent extends Component {
                     },
                   },
                 }}
+                firstDay={1}
                 markedDates={{...this.state.markedDates}}
                 markingType={'period'}
                 monthFormat={'yyyy MM'}

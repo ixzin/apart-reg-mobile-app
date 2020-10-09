@@ -30,6 +30,7 @@ class BookingComponent extends Component {
         startTime: '17:00',
         endTime: '11:00',
         numberOfGuests: 1,
+        markedDates: {},
       },
       clients: null,
       client: {},
@@ -46,10 +47,72 @@ class BookingComponent extends Component {
     this.getApartments();
   }
 
+  onStartDateCalendarChange = async (datestring) => {
+    this.getBookingCalendar(
+      Config.getFirstDayOfMonth(datestring),
+      Config.getLastDayOfMonth(datestring),
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        let markers = {};
+        responseJson.forEach((date) => {
+          let fullDate = new Date(date.date);
+
+          markers[fullDate.toISOString().split('T')[0]] = {
+            color: date.color,
+            startingDay: date.isStart,
+            endingDay: date.isEnd,
+            bookingId: date.bookingId,
+            disabled: !date.isEnd,
+            disableTouchEvent: !date.isEnd,
+          };
+        });
+        this.setState({
+          markedDates: markers,
+          showStartDatePiker: true,
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  onEndDateCalendarChange = async (datestring) => {
+    this.getBookingCalendar(
+      Config.getFirstDayOfMonth(datestring),
+      Config.getLastDayOfMonth(datestring),
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        let markers = {};
+        responseJson.forEach((date) => {
+          let fullDate = new Date(date.date);
+
+          markers[fullDate.toISOString().split('T')[0]] = {
+            color: date.color,
+            startingDay: date.isStart,
+            endingDay: date.isEnd,
+            bookingId: date.bookingId,
+            disabled: !date.isStart,
+            disableTouchEvent: !date.isStart,
+          };
+        });
+        this.setState({
+          markedDates: markers,
+          showEndDatePiker: true,
+        });
+        console.log(this.state.markedDates);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
   onStartDateChange = (selectedDate) => {
     this.setBookingProperty('startDate', selectedDate.dateString);
     this.setState({
       showStartDatePiker: false,
+      markedDates: {},
     });
   };
 
@@ -57,6 +120,7 @@ class BookingComponent extends Component {
     this.setBookingProperty('endDate', selectedDate.dateString);
     this.setState({
       showEndDatePiker: false,
+      markedDates: {},
     });
   };
 
@@ -150,6 +214,22 @@ class BookingComponent extends Component {
     });
   };
 
+  getBookingCalendar = async (dateStart, dateEnd) => {
+    const token = await Authorization.getAccessToken();
+
+    return fetch(
+      `${Config.Data.apiConfig.bookingsByPeriod}?apartmentId=${this.state.booking.apartmentId}&startDate=${dateStart}&endDate=${dateEnd}`,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token,
+        },
+        method: 'GET',
+      },
+    );
+  };
+
   validate = (key, entity) => {
     if (
       !Validator.errorFields.includes(key) &&
@@ -173,7 +253,7 @@ class BookingComponent extends Component {
   save = async () => {
     const startDate = new Date(this.state.booking.startDate);
     const endDate = new Date(this.state.booking.endDate);
-    console.log(startDate, endDate);
+
     if (startDate.getTime() < endDate.getTime()) {
       this.validateAll();
       const data = {...{client: this.state.client}, ...this.state.booking};
@@ -397,7 +477,7 @@ class BookingComponent extends Component {
             )}
             <View style={styles.row}>
               <TouchableHighlight
-                onPress={() => this.setState({showStartDatePiker: true})}
+                onPress={() => this.onStartDateCalendarChange()}
                 style={
                   this.isError('startDate')
                     ? styles.errorButton
@@ -444,7 +524,7 @@ class BookingComponent extends Component {
             </View>
             <View style={styles.row}>
               <TouchableHighlight
-                onPress={() => this.setState({showEndDatePiker: true})}
+                onPress={() => this.onEndDateCalendarChange()}
                 style={
                   this.isError('endDate')
                     ? styles.errorButton
@@ -543,11 +623,26 @@ class BookingComponent extends Component {
             <Calendar
               minDate={Config.Dates.min}
               maxDate={Config.Dates.max}
+              hideExtraDays={true}
+              markingType={'period'}
+              markedDates={{...this.state.markedDates}}
               onDayPress={(day) => {
                 this.onStartDateChange(day);
               }}
+              onMonthChange={(month) =>
+                this.onStartDateCalendarChange(month.dateString)
+              }
+              theme={{
+                'stylesheet.day.period': {
+                  base: {
+                    overflow: 'hidden',
+                    height: 34,
+                    alignItems: 'center',
+                    width: 38,
+                  },
+                },
+              }}
               monthFormat={'yyyy MM'}
-              disableMonthChange={true}
               firstDay={1}
               disableAllTouchEventsForDisabledDays={true}
               enableSwipeMonths={true}
@@ -562,6 +657,21 @@ class BookingComponent extends Component {
               onDayPress={(day) => {
                 this.onEndDateChange(day);
               }}
+              onMonthChange={(month) =>
+                this.onEndDateCalendarChange(month.dateString)
+              }
+              theme={{
+                'stylesheet.day.period': {
+                  base: {
+                    overflow: 'hidden',
+                    height: 34,
+                    alignItems: 'center',
+                    width: 38,
+                  },
+                },
+              }}
+              markedDates={{...this.state.markedDates}}
+              markingType={'period'}
               monthFormat={'yyyy MM'}
               disableMonthChange={true}
               firstDay={1}
