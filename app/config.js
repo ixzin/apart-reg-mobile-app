@@ -1,7 +1,7 @@
 import {LocaleConfig} from 'react-native-calendars';
 
 const Constants = {
-  apiUrl: 'http://10.0.3.2:3001',
+  apiUrl: 'http://104.245.33.59:3001',
   language: 'ru',
 };
 const Data = {
