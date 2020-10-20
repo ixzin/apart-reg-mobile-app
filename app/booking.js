@@ -48,64 +48,72 @@ class BookingComponent extends Component {
   }
 
   onStartDateCalendarChange = async (datestring) => {
-    this.getBookingCalendar(
-      Config.getFirstDayOfMonth(datestring),
-      Config.getLastDayOfMonth(datestring),
-    )
-      .then((response) => response.json())
-      .then((responseJson) => {
-        let markers = {};
-        responseJson.forEach((date) => {
-          let fullDate = new Date(date.date);
+    if (this.state.booking.apartmentId) {
+      this.getBookingCalendar(
+        Config.getFirstDayOfMonth(datestring),
+        Config.getLastDayOfMonth(datestring),
+      )
+        .then((response) => response.json())
+        .then((responseJson) => {
+          let markers = {};
+          responseJson.forEach((date) => {
+            let fullDate = new Date(date.date);
 
-          markers[fullDate.toISOString().split('T')[0]] = {
-            color: date.color,
-            startingDay: date.isStart,
-            endingDay: date.isEnd,
-            bookingId: date.bookingId,
-            disabled: !date.isEnd,
-            disableTouchEvent: !date.isEnd,
-          };
+            markers[fullDate.toISOString().split('T')[0]] = {
+              color: date.color,
+              startingDay: date.isStart,
+              endingDay: date.isEnd,
+              bookingId: date.bookingId,
+              disabled: !date.isEnd,
+              disableTouchEvent: !date.isEnd,
+            };
+          });
+          this.setState({
+            markedDates: markers,
+            showStartDatePiker: true,
+          });
+        })
+        .catch((error) => {
+          console.error(error);
         });
-        this.setState({
-          markedDates: markers,
-          showStartDatePiker: true,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    } else {
+      Alert.alert(Translations.noApartmentError[Config.Constants.language]);
+    }
   };
 
   onEndDateCalendarChange = async (datestring) => {
-    this.getBookingCalendar(
-      Config.getFirstDayOfMonth(datestring),
-      Config.getLastDayOfMonth(datestring),
-    )
-      .then((response) => response.json())
-      .then((responseJson) => {
-        let markers = {};
-        responseJson.forEach((date) => {
-          let fullDate = new Date(date.date);
+    if (this.state.booking.apartmentId) {
+      this.getBookingCalendar(
+        Config.getFirstDayOfMonth(datestring),
+        Config.getLastDayOfMonth(datestring),
+      )
+        .then((response) => response.json())
+        .then((responseJson) => {
+          let markers = {};
+          responseJson.forEach((date) => {
+            let fullDate = new Date(date.date);
 
-          markers[fullDate.toISOString().split('T')[0]] = {
-            color: date.color,
-            startingDay: date.isStart,
-            endingDay: date.isEnd,
-            bookingId: date.bookingId,
-            disabled: !date.isStart,
-            disableTouchEvent: !date.isStart,
-          };
+            markers[fullDate.toISOString().split('T')[0]] = {
+              color: date.color,
+              startingDay: date.isStart,
+              endingDay: date.isEnd,
+              bookingId: date.bookingId,
+              disabled: !date.isStart,
+              disableTouchEvent: !date.isStart,
+            };
+          });
+          this.setState({
+            markedDates: markers,
+            showEndDatePiker: true,
+          });
+          console.log(this.state.markedDates);
+        })
+        .catch((error) => {
+          console.error(error);
         });
-        this.setState({
-          markedDates: markers,
-          showEndDatePiker: true,
-        });
-        console.log(this.state.markedDates);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    } else {
+      Alert.alert(Translations.noApartmentError[Config.Constants.language]);
+    }
   };
 
   onStartDateChange = (selectedDate) => {

@@ -183,6 +183,10 @@ const Translations = {
     eng: ' Date of start must be less then end',
     ru: 'Дата выселения не должна быть меньше даты заселения',
   },
+  noApartmentError: {
+    eng: ' Choose apartmetn',
+    ru: 'Не выбраны аппартаменты',
+  },
 };
 
 export default Translations;
