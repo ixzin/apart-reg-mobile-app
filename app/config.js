@@ -144,14 +144,14 @@ const getFirstDayOfMonth = (date?) => {
   let fullDate = date ? new Date(date) : new Date();
   let firstDay = new Date(fullDate.getFullYear(), fullDate.getMonth(), 1);
 
-  return firstDay.toISOString().split('T')[0];
+  return firstDay.toLocaleDateString('fr-CA');
 };
 
 const getLastDayOfMonth = (date?) => {
   let fullDate = date ? new Date(date) : new Date();
   let lastDay = new Date(fullDate.getFullYear(), fullDate.getMonth() + 1, 0);
 
-  return lastDay.toISOString().split('T')[0];
+  return lastDay.toLocaleDateString('fr-CA');
 };
 
 export default {
