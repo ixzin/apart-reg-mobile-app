@@ -144,14 +144,22 @@ const getFirstDayOfMonth = (date?) => {
   let fullDate = date ? new Date(date) : new Date();
   let firstDay = new Date(fullDate.getFullYear(), fullDate.getMonth(), 1);
 
-  return firstDay.toLocaleDateString('fr-CA');
+  return formatDate(firstDay);
 };
 
 const getLastDayOfMonth = (date?) => {
   let fullDate = date ? new Date(date) : new Date();
   let lastDay = new Date(fullDate.getFullYear(), fullDate.getMonth() + 1, 0);
 
-  return lastDay.toLocaleDateString('fr-CA');
+  return formatDate(lastDay);
+};
+
+const formatDate = (date) => {
+  const year = date.getFullYear().toString();
+  const month = (date.getMonth() + 101).toString().substring(1);
+  const day = (date.getDate() + 100).toString().substring(1);
+
+  return year + '-' + month + '-' + day;
 };
 
 export default {
